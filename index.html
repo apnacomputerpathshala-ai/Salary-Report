@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salary Tracker</title>
+    
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#334155">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
+    <style>
+        :root { 
+            --p: #334155; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --border: #e2e8f0;
+            --earn: #15803d; --exp: #be123c; --lwp: #b45309; --bal: #1d4ed8;
+        }
+        body.dark { 
+            --p: #1e293b; --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --border: #334155;
+            --earn: #22c55e; --exp: #f43f5e; --lwp: #f59e0b; --bal: #3b82f6;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 30px; transition: 0.3s; }
+        .nav { background: var(--p); color: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: var(--card); z-index: 1001; transition: 0.3s; display: flex; flex-direction: column; box-shadow: 2px 0 10px rgba(0,0,0,0.1); border-right: 1px solid var(--border); }
+        .sidebar.active { left: 0; }
+        .s-header { padding: 25px; text-align: center; border-bottom: 1px solid var(--border); }
+        .profile-pic { width: 85px; height: 85px; border-radius: 50%; object-fit: cover; border: 3px solid var(--p); margin-bottom: 10px; }
+        .m-item { padding: 12px 25px; display: flex; align-items: center; gap: 15px; color: var(--text); cursor: pointer; font-size: 14px; border-bottom: 1px solid var(--border); }
+        .m-item:hover { background: var(--bg); color: var(--p); }
+        .container { max-width: 850px; margin: 15px auto; padding: 0 10px; }
+        .section { display: none; } .section.active { display: block; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 15px; }
+        .stat-card { background: var(--card); padding: 15px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .stat-card small { font-size: 10px; font-weight: 800; text-transform: uppercase; color: gray; display: block; }
+        .stat-card.earn { border-left: 5px solid var(--earn); color: var(--earn); }
+        .stat-card.exp { border-left: 5px solid var(--exp); color: var(--exp); }
+        .stat-card.lwp { border-left: 5px solid var(--lwp); color: var(--lwp); }
+        .stat-card.bal { border-left: 5px solid var(--bal); color: var(--bal); }
+        .stat-card div.v { font-size: 18px; font-weight: 800; }
+
+        .card { background: var(--card); border-radius: 18px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border); box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+        input, select { padding: 10px; border-radius: 10px; border: 1px solid var(--border); width: 100%; box-sizing: border-box; margin-bottom: 8px; background: var(--card); color: var(--text); font-size: 14px; }
+        .btn { background: var(--p); color: white; border: none; padding: 12px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn:active { transform: scale(0.98); }
+
+        .h-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 10px; }
+        .tab-box { display: flex; gap: 5px; overflow-x: auto; flex: 1; padding-bottom: 5px; }
+        .tab { padding: 6px 12px; background: #e2e8f0; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; border: none; white-space: nowrap; }
+        .tab.active { background: var(--p); color: white; }
+        .pdf-btn { background: #ef4444; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; flex-shrink: 0; }
+
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+        .icons { display: flex; gap: 15px; font-size: 16px; margin-top: 5px; }
+        
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; }
+        .overlay.active { display: block; }
+        #loginOverlay { position: fixed; inset: 0; background: var(--p); z-index: 2000; display: flex; align-items: center; justify-content: center; }
+        .f-text { padding: 20px; font-size: 12px; color: gray; text-align: center; font-weight: 600; }
+    </style>
+</head>
+<body class="light">
+
+<div id="loginOverlay">
+    <div style="background:var(--card); padding:30px; border-radius:25px; text-align:center; width:280px;">
+        <img src="./profile.jpg" style="width:75px; height:75px; border-radius:50%; margin-bottom:15px; border: 3px solid var(--p); object-fit: cover;">
+        <h3 style="color:var(--text); margin-top:0;">SURYA</h3>
+        <input type="password" id="passCode" placeholder="पासवर्ड डालें">
+        <button onclick="unlock()" class="btn">Unlock Dashboard</button>
+    </div>
+</div>
+
+<nav class="nav">
+    <i class="fas fa-bars" onclick="tog()"></i>
+    <span style="font-weight: 800; letter-spacing: 1px;">SURYA</span>
+    <i class="fas fa-moon" id="themeIcon" onclick="toggleTheme()" style="cursor:pointer;"></i>
+</nav>
+
+<div class="overlay" id="over" onclick="tog()"></div>
+
+<aside class="sidebar" id="side">
+    <div class="s-header">
+        <img src="./profile.jpg" class="profile-pic">
+        <div style="font-weight: 800; font-size: 18px; color: var(--text);">Suraj Kumar</div>
+        <div style="font-size: 11px; color: gray;">Salary Report</div>
+    </div>
+    <ul style="list-style:none; padding:0; flex:1;">
+        <li class="m-item" onclick="go('dash')"><i class="fas fa-home"></i> Dashboard</li>
+        <li class="m-item" onclick="leaveRequest()"><i class="fas fa-envelope-open-text"></i> Leave Request</li>
+        <li class="m-item" onclick="go('bin')"><i class="fas fa-trash-restore"></i> Recycle Bin</li>
+        <li class="m-item" onclick="go('settings')"><i class="fas fa-cog"></i> Settings & Pass</li>
+        <li class="m-item" onclick="logout()" style="color:red"><i class="fas fa-power-off"></i> Logout</li>
+    </ul>
+    <div class="f-text">© 2026 surya | सूरज कुमार</div>
+</aside>
+
+<div class="container">
+    <div id="dash" class="section active">
+        <div class="stats-grid">
+            <div class="stat-card earn"><small>EARNED</small><div class="v" id="tS">₹0</div></div>
+            <div class="stat-card exp"><small>EXPENSES</small><div class="v" id="tE">₹0</div></div>
+            <div class="stat-card lwp"><small>LWP CUT</small><div class="v" id="tL">₹0</div></div>
+            <div class="stat-card bal"><small>BALANCE</small><div class="v" id="tB">₹0</div></div>
+        </div>
+
+        <div class="card">
+            <h4><i class="fas fa-plus-circle"></i> नई एंट्री जोड़ें</h4>
+            <input type="date" id="fD">
+            <select id="fT">
+                <option value="s">Salary (Earned)</option>
+                <option value="e">Expense</option>
+                <option value="l">LWP Cut</option>
+            </select>
+            <select id="fM">
+                <option value="Online">Online</option>
+                <option value="Cash">Cash</option>
+            </select>
+            <input type="text" id="fR" placeholder="विवरण (Remark)">
+            <input type="number" id="fA" placeholder="राशि (Amount)">
+            <button onclick="save()" id="sBtn" class="btn">Cloud में सुरक्षित करें</button>
+        </div>
+
+        <div class="card">
+            <div class="h-header">
+                <div class="tab-box">
+                    <button class="tab active" onclick="setTab('all', this)">All</button>
+                    <button class="tab" onclick="setTab('s', this)">Earned</button>
+                    <button class="tab" onclick="setTab('e', this)">Exp</button>
+                    <button class="tab" onclick="setTab('l', this)">LWP</button>
+                </div>
+                <button class="pdf-btn" onclick="openPdfModal()"><i class="fas fa-file-pdf"></i></button>
+            </div>
+            
+            <input type="text" id="qInput" placeholder="History सर्च करें..." oninput="draw()" style="padding:10px; margin-bottom:10px;">
+            <div id="mBody">Loading Transactions...</div>
+        </div>
+        <div class="f-text">© 2026 surya | सूरज कुमार</div>
+    </div>
+
+    <div id="bin" class="section">
+        <div class="card">
+            <h4 style="display:flex; justify-content:space-between; align-items:center;">
+                <span><i class="fas fa-recycle"></i> Recycle Bin</span>
+                <button onclick="emptyBin()" style="background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:8px; font-size:12px;">Empty Bin</button>
+            </h4>
+            <div id="binBody" style="font-size: 13px;">Bin is empty</div>
+            <button onclick="go('dash')" class="btn" style="background:gray; margin-top:10px;">Back to Dashboard</button>
+        </div>
+    </div>
+
+    <div id="settings" class="section">
+        <div class="card">
+            <h4><i class="fas fa-key"></i> Change Password</h4>
+            <input type="password" id="nP" placeholder="Enter New Password">
+            <button class="btn" onclick="updatePass()">Update Password</button>
+            <button onclick="go('dash')" class="btn" style="background:gray; margin-top:10px;">Back</button>
+        </div>
+    </div>
+
+    <div id="pdfModal" class="overlay" style="display:none; align-items:center; justify-content:center;">
+        <div class="card" style="width:300px; z-index:2001;">
+            <h4>Generate PDF Report</h4>
+            <label style="font-size: 12px; color: gray;">From Date:</label>
+            <input type="date" id="rS">
+            <label style="font-size: 12px; color: gray;">To Date:</label>
+            <input type="date" id="rE">
+            <button onclick="generatePDF()" class="btn">Download Report</button>
+            <button onclick="closePdfModal()" class="btn" style="background:gray; margin-top:5px;">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- Step 1: Firebase Configuration ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyCszu8DetVf4YrmPVY9PGgGyqdgH0SfZzw",
+        authDomain: "salary-732.firebaseapp.app",
+        projectId: "salary-732",
+        databaseURL: "https://salary-732-default-rtdb.firebaseio.com",
+        storageBucket: "salary-732.firebasestorage.app",
+        messagingSenderId: "352819231018",
+        appId: "1:352819231018:web:46e6ed4f010db3f779c653"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const dbRef = firebase.database().ref('surya_records');
+
+    let db = { s: [], e: [], l: [], bin: [] };
+    let curTab = 'all', edIdx = { t: null, i: -1 };
+
+    // --- Data Sync from Firebase ---
+    dbRef.on('value', (snap) => {
+        if(snap.val()) {
+            db = snap.val();
+            if(!db.bin) db.bin = [];
+            draw();
+            drawBin();
+        }
+    });
+
+    // --- Authentication & Theme Logic ---
+    function unlock() {
+        let p = localStorage.getItem('Surya_Pass') || 'suraj123';
+        if(document.getElementById('passCode').value === p) {
+            document.getElementById('loginOverlay').style.display = 'none';
+            localStorage.setItem('Surya_Logged', 'true');
+            draw();
+        } else alert('गलत पासवर्ड!');
+    }
+
+    function logout() {
+        localStorage.removeItem('Surya_Logged');
+        location.reload();
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('dark');
+        const isDark = document.body.classList.contains('dark');
+        document.getElementById('themeIcon').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+        localStorage.setItem('Surya_Theme', isDark ? 'dark' : 'light');
+    }
+
+    // --- Navigation & UI ---
+    function tog() { document.getElementById('side').classList.toggle('active'); document.getElementById('over').classList.toggle('active'); }
+    function go(p) { document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); document.getElementById(p).classList.add('active'); if(p==='bin') drawBin(); tog(); }
+    function setTab(t, b) { curTab = t; document.querySelectorAll('.tab').forEach(x => x.classList.remove('active')); b.classList.add('active'); draw(); }
+
+    function draw() {
+        const mb = document.getElementById('mBody'); 
+        const search = document.getElementById('qInput').value.toLowerCase();
+        mb.innerHTML = ''; 
+        let s=0, e=0, l=0;
+        
+        (db.s||[]).forEach(x=>s+=parseFloat(x.amt)); 
+        (db.e||[]).forEach(x=>e+=parseFloat(x.amt)); 
+        (db.l||[]).forEach(x=>l+=parseFloat(x.amt));
+
+        document.getElementById('tS').innerText = '₹'+s.toLocaleString(); 
+        document.getElementById('tE').innerText = '₹'+e.toLocaleString();
+        document.getElementById('tL').innerText = '₹'+l.toLocaleString(); 
+        document.getElementById('tB').innerText = '₹'+(s-e-l).toLocaleString();
+
+        let list = (curTab === 'all') ? 
+            [...(db.s||[]).map((x,i)=>({...x,t:'s',idx:i})), ...(db.e||[]).map((x,i)=>({...x,t:'e',idx:i})), ...(db.l||[]).map((x,i)=>({...x,t:'l',idx:i}))] : 
+            (db[curTab]||[]).map((x,i)=>({...x,t:curTab,idx:i}));
+        
+        list.sort((a,b)=>new Date(b.date)-new Date(a.date)).filter(item => {
+            return item.rem.toLowerCase().includes(search) || item.date.includes(search);
+        }).forEach(item => {
+            mb.innerHTML += `<div class="item-row">
+                <div><small>${item.date} (${item.mode || 'N/A'})</small><br><b>${item.rem}</b></div>
+                <div style="text-align:right;">
+                    <b style="color:${item.t==='s'?'green':'red'}">₹${parseFloat(item.amt).toLocaleString()}</b>
+                    <div class="icons">
+                        <i class="fas fa-edit" onclick="edit('${item.t}',${item.idx})" style="color:blue; cursor:pointer;" title="Edit"></i>
+                        <i class="fas fa-trash" onclick="moveToBin('${item.t}',${item.idx})" style="color:red; cursor:pointer;" title="Move to Bin"></i>
+                        <i class="fab fa-whatsapp" onclick="waShare('${item.date}','${item.rem}','${item.amt}')" style="color:green; cursor:pointer;" title="Share"></i>
+                    </div>
+                </div>
+            </div>`;
+        });
+    }
+
+    // --- Core Operations ---
+    function save() {
+        const d=document.getElementById('fD').value, t=document.getElementById('fT').value, m=document.getElementById('fM').value, r=document.getElementById('fR').value, a=document.getElementById('fA').value;
+        if(!d||!a) return alert('तारीख और राशि भरें');
+        if(!db[t]) db[t] = [];
+        if(edIdx.i === -1) {
+            db[t].push({date:d, mode:m, rem:r, amt:a});
+        } else {
+            db[edIdx.t][edIdx.i] = {date:d, mode:m, rem:r, amt:a};
+            edIdx = {t:null, i:-1};
+            document.getElementById('sBtn').innerText='Cloud में सुरक्षित करें';
+        }
+        dbRef.set(db).then(()=> { document.getElementById('fR').value=''; document.getElementById('fA').value=''; });
+    }
+
+    function edit(t, i) {
+        const item = db[t][i];
+        document.getElementById('fD').value = item.date;
+        document.getElementById('fT').value = t;
+        document.getElementById('fM').value = item.mode || 'Online';
+        document.getElementById('fR').value = item.rem;
+        document.getElementById('fA').value = item.amt;
+        edIdx = {t: t, i: i};
+        document.getElementById('sBtn').innerText = 'Update Record';
+        window.scrollTo(0,0);
+    }
+
+    function moveToBin(t, i) {
+        if(confirm('Recycle Bin में भेजें?')) {
+            let item = db[t].splice(i,1)[0];
+            item.oldT = t;
+            if(!db.bin) db.bin = [];
+            db.bin.push(item);
+            dbRef.set(db);
+        }
+    }
+
+    function drawBin() {
+        const bb = document.getElementById('binBody'); bb.innerHTML = '';
+        if(!db.bin || db.bin.length === 0) { bb.innerHTML = '<center style="padding:20px; color:gray;">Bin is empty</center>'; return; }
+        (db.bin||[]).forEach((x,i)=>{
+            bb.innerHTML += `<div class="item-row">
+                <div><small>${x.date}</small><br><b>${x.rem}</b></div>
+                <div>
+                    <button onclick="restore(${i})" style="background:green;color:white;border:none;padding:5px 10px;border-radius:8px;cursor:pointer;">Restore</button>
+                    <button onclick="deleteForever(${i})" style="background:red;color:white;border:none;padding:5px 10px;border-radius:8px;cursor:pointer;margin-left:5px;"><i class="fas fa-times"></i></button>
+                </div>
+            </div>`;
+        });
+    }
+
+    function restore(i) { let item = db.bin.splice(i,1)[0]; db[item.oldT].push(item); dbRef.set(db); }
+    function deleteForever(i) { if(confirm('हमेशा के लिए डिलीट करें? यह वापस नहीं आएगा।')) { db.bin.splice(i, 1); dbRef.set(db); } }
+    function emptyBin() { if(confirm('क्या आप पूरा Recycle Bin खाली करना चाहते हैं?')) { db.bin = []; dbRef.set(db); } }
+
+    function updatePass() { let n=document.getElementById('nP').value; if(n){localStorage.setItem('Surya_Pass',n); alert('Password Updated!');} }
+    function waShare(d,r,a) { window.open(`https://api.whatsapp.com/send?text=*Surya Tracker Receipt*%0A📅 तारीख: ${d}%0A📝 विवरण: ${r}%0A💰 राशि: ₹${parseFloat(a).toLocaleString()}`); }
+    
+    function leaveRequest() {
+        let b=encodeURIComponent("नमस्ते सर,\nमुझे कुछ जरूरी काम हेतु छुट्टी चाहिए। कृपया स्वीकार करें।");
+        let c=confirm("Message Option:\nOK - WhatsApp\nCancel - Gmail");
+        if(c) window.open(`https://api.whatsapp.com/send?text=${b}`, '_blank');
+        else window.open(`mailto:sir@example.com?subject=Leave%20Request&body=${b}`, '_blank');
+    }
+
+    function openPdfModal() { document.getElementById('pdfModal').style.display='flex'; }
+    function closePdfModal() { document.getElementById('pdfModal').style.display='none'; }
+    
+    function generatePDF() {
+        const { jsPDF } = window.jspdf; const doc = new jsPDF();
+        let s = document.getElementById('rS').value, e = document.getElementById('rE').value, rows = [];
+        const list = (curTab === 'all') ? [...(db.s||[]), ...(db.e||[]), ...(db.l||[])] : (db[curTab]||[]);
+        list.forEach(x => {
+            if((!s || x.date >= s) && (!e || x.date <= e)) rows.push([x.date, x.rem, x.amt]);
+        });
+        doc.text(`Salary Tracker Report (${curTab.toUpperCase()})`, 14, 15);
+        doc.autoTable({ head:[['Date','Description','Amount']], body:rows, startY: 20 });
+        doc.save(`Surya_Report_${curTab}.pdf`);
+    }
+
+    window.onload = () => {
+        if(localStorage.getItem('Surya_Logged') === 'true') document.getElementById('loginOverlay').style.display = 'none';
+        if(localStorage.getItem('Surya_Theme') === 'dark') {
+            document.body.classList.add('dark');
+            document.getElementById('themeIcon').className = 'fas fa-sun';
+        }
+        document.getElementById('fD').valueAsDate = new Date();
+        draw();
+    };
+</script>
+</body>
+</html>
