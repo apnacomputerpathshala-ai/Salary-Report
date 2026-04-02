@@ -211,7 +211,7 @@
 };
 
     firebase.initializeApp(firebaseConfig);
-    const dbRef = firebase.database().ref('users/yfTwxLMkczWehOliG1ZkpnLC28m1/surya_records');
+    const dbRef = firebase.database().ref('surya_records');
     const provider = new firebase.auth.GoogleAuthProvider();
 
     let db = { s: [], e: [], l: [], bin: [], settings: { baseSalary: 25000, lastMonth: "" } };
@@ -347,9 +347,11 @@
     }
 
     function save() {
-        const d=document.getElementById('fD').value, t=document.getElementById('fT').value, m=document.getElementById('fM').value, r=document.getElementById('fR').value, a=document.getElementById('fA').value;
-        if(!d||!a) return alert('तारीख और राशि भरें');
-        if(!db[t]) db[t] = [];
+    const d=document.getElementById('fD').value, t=document.getElementById('fT').value, m=document.getElementById('fM').value, r=document.getElementById('fR').value, a=document.getElementById('fA').value;
+    if(!d||!a) return alert('तारीख और राशि भरें');
+    
+    // सुनिश्चित करें कि db के अंदर s, e, या l मौजूद है
+    if(!db[t]) db[t] = [];
         if(edIdx.i === -1) db[t].push({date:d, mode:m, rem:r, amt:a});
         else { db[edIdx.t][edIdx.i] = {date:d, mode:m, rem:r, amt:a}; edIdx = {t:null, i:-1}; document.getElementById('sBtn').innerText='Cloud में सुरक्षित करें'; }
         dbRef.set(db).then(()=> { document.getElementById('fR').value=''; document.getElementById('fA').value=''; });
