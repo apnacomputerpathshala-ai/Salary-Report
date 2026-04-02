@@ -3,28 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salary Tracker</title>
-    
+    <title>Salary Tracker - Surya Zone</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#334155">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        :root { 
-            --p: #334155; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --border: #e2e8f0;
-            --earn: #15803d; --exp: #be123c; --lwp: #b45309; --bal: #1d4ed8;
-        }
-        body.dark { 
-            --p: #1e293b; --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --border: #334155;
-            --earn: #22c55e; --exp: #f43f5e; --lwp: #f59e0b; --bal: #3b82f6;
-        }
+        :root { --p: #334155; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --border: #e2e8f0; --earn: #15803d; --exp: #be123c; --lwp: #b45309; --bal: #1d4ed8; }
+        body.dark { --p: #1e293b; --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --border: #334155; --earn: #22c55e; --exp: #f43f5e; --lwp: #f59e0b; --bal: #3b82f6; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 30px; transition: 0.3s; }
         .nav { background: var(--p); color: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: var(--card); z-index: 1001; transition: 0.3s; display: flex; flex-direction: column; box-shadow: 2px 0 10px rgba(0,0,0,0.1); border-right: 1px solid var(--border); }
@@ -56,11 +48,9 @@
         .overlay.active { display: block; }
         #loginOverlay { position: fixed; inset: 0; background: var(--p); z-index: 2000; display: flex; align-items: center; justify-content: center; }
         .f-text { padding: 20px; font-size: 12px; color: gray; text-align: center; font-weight: 600; }
-        
         .flex-row { display: flex; gap: 15px; flex-wrap: wrap; }
         .flex-col-history { flex: 1; min-width: 300px; }
         .flex-col-chart { width: 220px; text-align: center; background: rgba(0,0,0,0.02); padding: 10px; border-radius: 15px; border: 1px solid var(--border); }
-        @media (max-width: 600px) { .flex-col-chart { width: 100%; } }
     </style>
 </head>
 <body class="light">
@@ -69,9 +59,6 @@
     <div style="background:var(--card); padding:30px; border-radius:25px; text-align:center; width:280px;">
         <img src="./profile.jpg" style="width:75px; height:75px; border-radius:50%; margin-bottom:15px; border: 3px solid var(--p); object-fit: cover;">
         <h3 style="color:var(--text); margin-top:0;">SURYA ZONE</h3>
-        <input type="password" id="passCode" placeholder="पासवर्ड डालें">
-        <button onclick="unlock()" class="btn">Unlock Dashboard</button>
-        <div style="margin: 10px 0; font-size: 12px; color: gray;">— या —</div>
         <button onclick="loginWithGoogle()" class="btn" style="background:#4285F4; display:flex; align-items:center; justify-content:center; gap:10px;">
             <i class="fab fa-google"></i> Login with Google
         </button>
@@ -80,7 +67,7 @@
 
 <nav class="nav">
     <i class="fas fa-bars" onclick="tog()"></i>
-    <span style="font-weight: 800; letter-spacing: 1px;">SURYA</span>
+    <span style="font-weight: 800; letter-spacing: 1px;">SURYA ZONE</span>
     <i class="fas fa-moon" id="themeIcon" onclick="toggleTheme()" style="cursor:pointer;"></i>
 </nav>
 
@@ -98,12 +85,9 @@
     </div>
     <ul style="list-style:none; padding:0; flex:1;">
         <li class="m-item" onclick="go('dash')"><i class="fas fa-home"></i> Dashboard</li>
-        <li class="m-item" onclick="leaveRequest()"><i class="fas fa-envelope-open-text"></i> Leave Request</li>
         <li class="m-item" onclick="go('bin')"><i class="fas fa-trash-restore"></i> Recycle Bin</li>
-        <li class="m-item" onclick="go('settings')"><i class="fas fa-cog"></i> Settings & Pass</li>
         <li class="m-item" onclick="logout()" style="color:red"><i class="fas fa-power-off"></i> Logout</li>
     </ul>
-    <div class="f-text">© 2026 Surya Zone | सूरज कुमार</div>
 </aside>
 
 <div class="container">
@@ -116,17 +100,14 @@
         </div>
 
         <div class="card">
-            <h4 id="addTitle"><i class="fas fa-plus-circle"></i> नई एंट्री जोड़ें</h4>
+            <h4><i class="fas fa-plus-circle"></i> नई एंट्री जोड़ें</h4>
             <input type="date" id="fD">
             <select id="fT">
                 <option value="s">Salary (Earned)</option>
                 <option value="e">Expense</option>
                 <option value="l">LWP Cut</option>
             </select>
-            <select id="fM">
-                <option value="Online">Online</option>
-                <option value="Cash">Cash</option>
-            </select>
+            <select id="fM"><option value="Online">Online</option><option value="Cash">Cash</option></select>
             <input type="text" id="fR" placeholder="विवरण (Remark)">
             <input type="number" id="fA" placeholder="राशि (Amount)">
             <button onclick="save()" id="sBtn" class="btn">Cloud में सुरक्षित करें</button>
@@ -139,59 +120,23 @@
                         <button class="tab active" onclick="setTab('all', this)">All</button>
                         <button class="tab" onclick="setTab('s', this)">Earned</button>
                         <button class="tab" onclick="setTab('e', this)">Exp</button>
-                        <button class="tab" onclick="setTab('l', this)">LWP</button>
                     </div>
-                    <button class="pdf-btn" onclick="openPdfModal()"><i class="fas fa-file-pdf"></i></button>
                 </div>
-                <b id="historyText" style="display:block; margin-top:10px; margin-bottom:10px; font-size:14px;">Transaction History</b> 
                 <input type="text" id="qInput" placeholder="History सर्च करें..." oninput="draw()" style="padding:10px; margin-bottom:10px;">
                 <div id="mBody">Loading Transactions...</div>
             </div>
-
             <div class="flex-col-chart card">
-                <h4 style="font-size:12px; margin-bottom:10px;"><i class="fas fa-chart-pie"></i> Analysis</h4>
                 <canvas id="myChart" style="max-height:160px;"></canvas>
                 <div id="chartSummary" style="font-size: 10px; margin-top: 8px; text-align: left; color: gray;"></div>
             </div>
         </div>
-        <div class="f-text">© 2026 Surya Zone | सूरज कुमार</div>
-    </div>
-
-    <div id="bin" class="section">
-        <div class="card">
-            <h4 style="display:flex; justify-content:space-between; align-items:center;">
-                <span><i class="fas fa-recycle"></i> Recycle Bin</span>
-                <button onclick="emptyBin()" style="background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:8px; font-size:12px;">Empty Bin</button>
-            </h4>
-            <div id="binBody" style="font-size: 13px;">Bin is empty</div>
-            <button onclick="go('dash')" class="btn" style="background:gray; margin-top:10px;">Back to Dashboard</button>
-        </div>
-    </div>
-
-    <div id="settings" class="section">
-        <div class="card">
-            <h4><i class="fas fa-key"></i> Settings</h4>
-            <label style="font-size: 12px; color: gray;">App Language:</label>
-            <select id="langSelect" onchange="changeLang(this.value)" style="margin-bottom: 15px;">
-                <option value="en">English</option>
-                <option value="hi">हिंदी</option>
-                <option value="bh">भोजपुरी</option>
-            </select>
-            <input type="password" id="nP" placeholder="Enter New Password">
-            <button class="btn" onclick="updatePass()">Update Password</button>
-            <button onclick="go('dash')" class="btn" style="background:gray; margin-top:10px;">Back</button>
-        </div>
     </div>
     
-    <div id="pdfModal" class="overlay" style="display:none; align-items:center; justify-content:center;">
-        <div class="card" style="width:300px; z-index:2001;">
-            <h4>Generate PDF Report</h4>
-            <label style="font-size: 12px; color: gray;">From Date:</label>
-            <input type="date" id="rS">
-            <label style="font-size: 12px; color: gray;">To Date:</label>
-            <input type="date" id="rE">
-            <button onclick="generatePDF()" class="btn">Download Report</button>
-            <button onclick="closePdfModal()" class="btn" style="background:gray; margin-top:5px;">Cancel</button>
+    <div id="bin" class="section">
+        <div class="card">
+            <h4><i class="fas fa-recycle"></i> Recycle Bin</h4>
+            <div id="binBody">Bin is empty</div>
+            <button onclick="go('dash')" class="btn" style="background:gray; margin-top:10px;">Back</button>
         </div>
     </div>
 </div>
@@ -208,229 +153,92 @@
     };
 
     firebase.initializeApp(firebaseConfig);
-    let dbRef; 
     let db = { s: [], e: [], l: [], bin: [], settings: { baseSalary: 25000, lastMonth: "" } };
     let curTab = 'all', edIdx = { t: null, i: -1 }, myChart;
 
     function loginWithGoogle() {
         const provider = new firebase.auth.GoogleAuthProvider();
-        firebase.auth().signInWithPopup(provider).then(() => {
-            localStorage.setItem('Surya_Logged', 'true');
-            window.location.reload(); 
-        }).catch((e) => alert("Login failed: " + e.message));
+        firebase.auth().signInWithPopup(provider).then(() => window.location.reload());
     }
 
     firebase.auth().onAuthStateChanged((user) => {
         if (user) {
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('sideName').innerText = user.displayName;
-            document.querySelector('.sidebar .profile-pic').src = user.photoURL;
+            document.querySelector('.profile-pic').src = user.photoURL;
             
-            dbRef = firebase.database().ref('users/' + user.uid + '/surya_records');
-            
+            const dbRef = firebase.database().ref('users/' + user.uid + '/surya_records');
             dbRef.on('value', (snap) => {
                 if(snap.val()) { 
                     db = snap.val(); 
-                    if(!db.bin) db.bin = []; 
+                    if(!db.bin) db.bin = [];
                     if(!db.settings) db.settings = { baseSalary: 25000, lastMonth: "" };
                     document.getElementById('baseSalary').value = db.settings.baseSalary;
-                    checkAutoSalary();
                     draw(); 
-                    drawBin(); 
+                } else {
+                    db = { s: [], e: [], l: [], bin: [], settings: { baseSalary: 25000, lastMonth: "" } };
+                    draw();
                 }
             });
         }
     });
 
-    function checkAutoSalary() {
-        const now = new Date();
-        const mKey = (now.getMonth() + 1) + "-" + now.getFullYear();
-        if (db.settings.lastMonth !== mKey) {
-            db.s.push({ 
-                date: now.toISOString().split('T')[0], 
-                rem: "KRITI EDIFY PVT.LTD",            
-                amt: db.settings.baseSalary,           
-                mode: "Online"                         
-            });
-            db.settings.lastMonth = mKey;
-            dbRef.set(db);
-        }
-    }
-
     function save() {
-        const d=document.getElementById('fD').value, t=document.getElementById('fT').value, m=document.getElementById('fM').value, r=document.getElementById('fR').value, a=document.getElementById('fA').value;
+        const d=document.getElementById('fD').value, t=document.getElementById('fT').value, r=document.getElementById('fR').value, a=document.getElementById('fA').value, m=document.getElementById('fM').value;
         if(!d||!a) return alert('तारीख और राशि भरें');
         if(!db[t]) db[t] = [];
 
         if(edIdx.i === -1) db[t].push({date:d, mode:m, rem:r, amt:a});
         else { db[edIdx.t][edIdx.i] = {date:d, mode:m, rem:r, amt:a}; edIdx = {t:null, i:-1}; document.getElementById('sBtn').innerText='Cloud में सुरक्षित करें'; }
         
-        dbRef.set(db).then(() => { 
-            document.getElementById('fR').value = ''; 
-            document.getElementById('fA').value = ''; 
-            draw(); 
-            alert("डेटा सुरक्षित हो गया!"); 
-        });
+        const user = firebase.auth().currentUser;
+        if(user) {
+            firebase.database().ref('users/' + user.uid + '/surya_records').set(db).then(() => {
+                document.getElementById('fR').value = ''; document.getElementById('fA').value = '';
+                draw(); alert("डेटा सुरक्षित हो गया!");
+            });
+        }
     }
 
     function draw() {
-        const mb = document.getElementById('mBody'); 
-        const search = document.getElementById('qInput').value.toLowerCase();
+        const mb = document.getElementById('mBody'); const q = document.getElementById('qInput').value.toLowerCase();
         mb.innerHTML = ''; let s=0, e=0, l=0;
-        
-        (db.s||[]).forEach(x=>s+=parseFloat(x.amt)); 
-        (db.e||[]).forEach(x=>e+=parseFloat(x.amt)); 
-        (db.l||[]).forEach(x=>l+=parseFloat(x.amt));
+        (db.s||[]).forEach(x=>s+=parseFloat(x.amt)); (db.e||[]).forEach(x=>e+=parseFloat(x.amt)); (db.l||[]).forEach(x=>l+=parseFloat(x.amt));
+        document.getElementById('tS').innerText = '₹'+s; document.getElementById('tE').innerText = '₹'+e;
+        document.getElementById('tL').innerText = '₹'+l; document.getElementById('tB').innerText = '₹'+(s-e-l);
 
-        document.getElementById('tS').innerText = '₹'+s.toLocaleString(); 
-        document.getElementById('tE').innerText = '₹'+e.toLocaleString();
-        document.getElementById('tL').innerText = '₹'+l.toLocaleString(); 
-        document.getElementById('tB').innerText = '₹'+(s-e-l).toLocaleString();
-
-        let list = (curTab === 'all') ? 
-            [...(db.s||[]).map((x,i)=>({...x,t:'s',idx:i})), ...(db.e||[]).map((x,i)=>({...x,t:'e',idx:i})), ...(db.l||[]).map((x,i)=>({...x,t:'l',idx:i}))] : 
-            (db[curTab]||[]).map((x,i)=>({...x,t:curTab,idx:i}));
-        
-        list.sort((a,b)=>new Date(b.date)-new Date(a.date)).filter(item => {
-            return item.rem.toLowerCase().includes(search) || item.date.includes(search);
-        }).forEach(item => {
+        let list = (curTab==='all') ? [...(db.s||[]).map((x,i)=>({...x,t:'s',idx:i})), ...(db.e||[]).map((x,i)=>({...x,t:'e',idx:i})), ...(db.l||[]).map((x,i)=>({...x,t:'l',idx:i}))] : (db[curTab]||[]).map((x,i)=>({...x,t:curTab,idx:i}));
+        list.sort((a,b)=>new Date(b.date)-new Date(a.date)).filter(x=>x.rem.toLowerCase().includes(q)).forEach(item => {
             mb.innerHTML += `<div class="item-row">
                 <div><small>${item.date}</small><br><b>${item.rem}</b></div>
                 <div style="text-align:right;">
-                    <b style="color:${item.t==='s'?'green':'red'}">₹${parseFloat(item.amt).toLocaleString()}</b>
+                    <b style="color:${item.t==='s'?'green':'red'}">₹${item.amt}</b>
                     <div class="icons">
-                        <i class="fas fa-edit" onclick="edit('${item.t}',${item.idx})" style="color:blue; cursor:pointer;"></i>
-                        <i class="fas fa-trash" onclick="moveToBin('${item.t}',${item.idx})" style="color:red; cursor:pointer;"></i>
-                        <i class="fab fa-whatsapp" onclick="waShare('${item.date}','${item.rem}','${item.amt}')" style="color:green; cursor:pointer;"></i>
+                        <i class="fas fa-edit" onclick="edit('${item.t}',${item.idx})" style="color:blue;"></i>
+                        <i class="fas fa-trash" onclick="del('${item.t}',${item.idx})" style="color:red;"></i>
                     </div>
                 </div>
             </div>`;
         });
-        updateChart(s, e, l);
+        updateChart(s,e,l);
     }
 
-    function updateChart(s, e, l) {
+    function updateChart(s,e,l) {
         const ctx = document.getElementById('myChart').getContext('2d');
-        if (myChart) myChart.destroy();
-        myChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Earned', 'Expense', 'LWP'],
-                datasets: [{
-                    data: [s, e, l],
-                    backgroundColor: ['#22c55e', '#f43f5e', '#f59e0b'],
-                    borderWidth: 2,
-                    borderColor: 'rgba(255,255,255,0.1)'
-                }]
-            },
-            options: { cutout: '70%', plugins: { legend: { display: false } }, responsive: true }
-        });
-        document.getElementById('chartSummary').innerHTML = `
-            <div style="color:#22c55e">● Earn: ₹${s.toLocaleString()}</div>
-            <div style="color:#f43f5e">● Exp: ₹${e.toLocaleString()}</div>
-            <div style="color:#f59e0b">● LWP: ₹${l.toLocaleString()}</div>
-        `;
+        if(myChart) myChart.destroy();
+        myChart = new Chart(ctx, { type: 'doughnut', data: { labels: ['Earn','Exp','LWP'], datasets: [{ data: [s,e,l], backgroundColor: ['#22c55e','#f43f5e','#f59e0b'] }] }, options: { cutout: '70%', plugins: { legend: { display: false } } } });
+        document.getElementById('chartSummary').innerHTML = `<div>Earned: ₹${s}</div><div>Exp: ₹${e}</div>`;
     }
 
-    function edit(t, i) {
-        const item = db[t][i];
-        document.getElementById('fD').value = item.date;
-        document.getElementById('fT').value = t;
-        document.getElementById('fR').value = item.rem;
-        document.getElementById('fA').value = item.amt;
-        edIdx = {t: t, i: i};
-        document.getElementById('sBtn').innerText = 'Update Record';
-        window.scrollTo(0,0);
-    }
-
-    function moveToBin(t, i) {
-        if(confirm('Recycle Bin में भेजें?')) {
-            let item = db[t].splice(i,1)[0];
-            item.oldT = t;
-            if(!db.bin) db.bin = [];
-            db.bin.push(item);
-            dbRef.set(db);
-        }
-    }
-
-    function drawBin() {
-        const bb = document.getElementById('binBody'); bb.innerHTML = '';
-        if(!db.bin || db.bin.length === 0) { bb.innerHTML = '<center style="padding:20px; color:gray;">Bin is empty</center>'; return; }
-        db.bin.forEach((x,i)=>{
-            bb.innerHTML += `<div class="item-row"><div><b>${x.rem}</b></div><button onclick="restore(${i})">Restore</button></div>`;
-        });
-    }
-    function restore(i) { let item = db.bin.splice(i,1)[0]; db[item.oldT].push(item); dbRef.set(db); }
-    function emptyBin() { if(confirm('Empty bin?')) { db.bin = []; dbRef.set(db); } }
-    function unlock() {
-        if(document.getElementById('passCode').value === (localStorage.getItem('Surya_Pass') || 'suraj123')) {
-            document.getElementById('loginOverlay').style.display = 'none';
-            localStorage.setItem('Surya_Logged', 'true');
-        } else alert('गलत पासवर्ड!');
-    }
-    function logout() { firebase.auth().signOut(); localStorage.removeItem('Surya_Logged'); location.reload(); }
-    function toggleTheme() {
-        document.body.classList.toggle('dark');
-        const isDark = document.body.classList.contains('dark');
-        document.getElementById('themeIcon').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
-        localStorage.setItem('Surya_Theme', isDark ? 'dark' : 'light');
-    }
+    function edit(t,i) { const x=db[t][i]; document.getElementById('fD').value=x.date; document.getElementById('fT').value=t; document.getElementById('fR').value=x.rem; document.getElementById('fA').value=x.amt; edIdx={t,i}; document.getElementById('sBtn').innerText='Update Record'; }
+    function del(t,i) { if(confirm('Delete?')) { let x=db[t].splice(i,1)[0]; x.oldT=t; db.bin.push(x); firebase.database().ref('users/'+firebase.auth().currentUser.uid+'/surya_records').set(db); } }
+    function logout() { firebase.auth().signOut().then(() => location.reload()); }
+    function toggleTheme() { document.body.classList.toggle('dark'); }
     function tog() { document.getElementById('side').classList.toggle('active'); document.getElementById('over').classList.toggle('active'); }
-    function go(p) { document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); document.getElementById(p).classList.add('active'); tog(); }
-    function setTab(t, b) { curTab = t; document.querySelectorAll('.tab').forEach(x => x.classList.remove('active')); b.classList.add('active'); draw(); }
-    function updatePass() { let n=document.getElementById('nP').value; if(n){localStorage.setItem('Surya_Pass',n); alert('Updated!');} }
-
-    function changeLang(lang) {
-        const dictionary = {
-            en: { earn: "EARNED", exp: "EXPENSES", lwp: "LWP CUT", bal: "BALANCE", add: "Add New Entry", save: "Save to Cloud", history: "Transaction History" },
-            hi: { earn: "कुल कमाई", exp: "कुल खर्च", lwp: "एलडब्ल्यूपी कटौती", bal: "बचा हुआ बैलेंस", add: "नई एंट्री जोड़ें", save: "क्लाउड में सेव करें", history: "लेन-देन इतिहास" },
-            bh: { earn: "कुल कमाई", exp: "कुल खरचा", lwp: "एलडब्ल्यूपी कटल", bal: "बचल बैलेंस", add: "नया एंट्री जोड़ल जाव", save: "क्लाउड में सेव करीं", history: "लेन-देन के इतिहास" }
-        };
-        document.querySelector('.earn small').innerText = dictionary[lang].earn;
-        document.querySelector('.exp small').innerText = dictionary[lang].exp;
-        document.querySelector('.lwp small').innerText = dictionary[lang].lwp;
-        document.querySelector('.bal small').innerText = dictionary[lang].bal;
-        document.getElementById('addTitle').innerHTML = `<i class="fas fa-plus-circle"></i> ${dictionary[lang].add}`;
-        document.getElementById('sBtn').innerText = dictionary[lang].save;
-        document.getElementById('historyText').innerText = dictionary[lang].history;
-        localStorage.setItem('Surya_Lang', lang);
-    }
-
-    function waShare(d,r,a) { window.open(`https://api.whatsapp.com/send?text=*Receipt*%0A📅 Date: ${d}%0A📝 Rem: ${r}%0A💰 Amt: ₹${a}`); }
-    function openPdfModal() { document.getElementById('pdfModal').style.display='flex'; }
-    function closePdfModal() { document.getElementById('pdfModal').style.display='none'; }
-    function leaveRequest() { window.open(`https://api.whatsapp.com/send?text=नमस्ते सर, मुझे छुट्टी चाहिए।`); }
-    
-    function generatePDF() {
-        const { jsPDF } = window.jspdf; const doc = new jsPDF();
-        let s = document.getElementById('rS').value, e = document.getElementById('rE').value, rows = [], ts=0, te=0, tl=0;
-        [...(db.s||[]), ...(db.e||[]), ...(db.l||[])].forEach(x => { 
-            if((!s || x.date >= s) && (!e || x.date <= e)) {
-                rows.push([x.date, x.rem, "INR " + parseFloat(x.amt).toLocaleString()]);
-                if((db.s||[]).includes(x)) ts += parseFloat(x.amt);
-                else if((db.e||[]).includes(x)) te += parseFloat(x.amt);
-                else tl += parseFloat(x.amt);
-            }
-        });
-        doc.setFillColor(51, 65, 85); doc.rect(0, 0, 210, 40, 'F');
-        doc.setFontSize(22); doc.setTextColor(255, 255, 255); doc.text("SALARY REPORT", 14, 20);
-        doc.autoTable({ 
-            head: [['Date', 'Description', 'Amount']], body: rows, startY: 45, theme: 'grid',
-            headStyles: { fillColor: [51, 65, 85] },
-            foot: [['', 'NET BALANCE', 'INR ' + (ts - te - tl).toLocaleString()]],
-            footStyles: { fillColor: [30, 41, 59] }
-        });
-        doc.save(`Report_${new Date().getTime()}.pdf`);
-    }
-
-    window.onload = () => {
-        if(localStorage.getItem('Surya_Logged') === 'true') document.getElementById('loginOverlay').style.display = 'none';
-        if(localStorage.getItem('Surya_Theme') === 'dark') { document.body.classList.add('dark'); document.getElementById('themeIcon').className='fas fa-sun'; }
-        const savedLang = localStorage.getItem('Surya_Lang') || 'en';
-        changeLang(savedLang);
-        document.getElementById('langSelect').value = savedLang;
-        document.getElementById('fD').valueAsDate = new Date();
-    };
+    function go(p) { document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); document.getElementById(p).classList.add('active'); tog(); }
+    function setTab(t,b) { curTab=t; document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); b.classList.add('active'); draw(); }
+    function updateBaseSalary(v) { db.settings.baseSalary=parseFloat(v); firebase.database().ref('users/'+firebase.auth().currentUser.uid+'/surya_records').set(db); }
+    window.onload = () => { document.getElementById('fD').valueAsDate = new Date(); };
 </script>
 </body>
 </html>
