@@ -144,9 +144,11 @@
                     </div>
                     <button class="pdf-btn" onclick="openPdfModal()"><i class="fas fa-file-pdf"></i></button>
                 </div>
-                <input type="text" id="qInput" placeholder="History सर्च करें..." oninput="draw()" style="padding:10px; margin-bottom:10px;">
-                <div id="mBody">Loading Transactions...</div>
-            </div>
+                <b id="historyText" style="display:block; margin-top:10px; margin-bottom:10px; font-size:14px;">Transaction History</b> 
+    
+    <input type="text" id="qInput" placeholder="History सर्च करें..." oninput="draw()" style="padding:10px; margin-bottom:10px;">
+    <div id="mBody">Loading Transactions...</div>
+</div>
 
             <div class="flex-col-chart card">
                 <h4 style="font-size:12px; margin-bottom:10px;"><i class="fas fa-chart-pie"></i> Analysis</h4>
@@ -199,17 +201,17 @@
 
 <script>
     const firebaseConfig = {
-        apiKey: "AIzaSyCszu8DetVf4YrmPVY9PGgGyqdgH0SfZzw",
-        authDomain: "salary-732.firebaseapp.app",
-        projectId: "salary-732",
-        databaseURL: "https://salary-732-default-rtdb.firebaseio.com",
-        storageBucket: "salary-732.firebasestorage.app",
-        messagingSenderId: "352819231018",
-        appId: "1:352819231018:web:46e6ed4f010db3f779c653"
-    };
+    apiKey: "AIzaSyCSzu8DetVf4YrmPVY9PGgGyqdgH0SfZzw", // 'S' बड़ा होना चाहिए था, जो मैंने ठीक कर दिया है
+    authDomain: "salary-732.firebaseapp.com", // यहाँ '.app' की जगह '.com' होगा
+    databaseURL: "https://salary-732-default-rtdb.firebaseio.com",
+    projectId: "salary-732",
+    storageBucket: "salary-732.firebasestorage.app",
+    messagingSenderId: "352819231018",
+    appId: "1:352819231018:web:46e6ed4f010db3f779c653"
+};
 
     firebase.initializeApp(firebaseConfig);
-    const dbRef = firebase.database().ref('surya_records');
+    const dbRef = firebase.database().ref('users/yfTwxLMkczWehOliG1ZkpnLC28m1/surya_records');
     const provider = new firebase.auth.GoogleAuthProvider();
 
     let db = { s: [], e: [], l: [], bin: [], settings: { baseSalary: 25000, lastMonth: "" } };
@@ -241,15 +243,24 @@
         });
     });
 
-    function checkAutoSalary() {
-        const now = new Date();
-        const mKey = (now.getMonth() + 1) + "-" + now.getFullYear();
-        if (db.settings.lastMonth !== mKey) {
-            db.s.push({ date: now.toISOString().split('T')[0], rem: "Monthly Salary (Auto)", amt: db.settings.baseSalary });
-            db.settings.lastMonth = mKey;
-            dbRef.set(db);
-        }
+   function checkAutoSalary() {
+    const now = new Date();
+    // वर्तमान महीने और साल की पहचान (जैसे: 4-2026)
+    const mKey = (now.getMonth() + 1) + "-" + now.getFullYear();
+    
+    // अगर इस महीने की सैलरी अभी तक नहीं जुड़ी है
+    if (db.settings.lastMonth !== mKey) {
+        // 's' (Earned) सेक्शन में एंट्री जोड़ें
+        db.s.push({ 
+            date: now.toISOString().split('T')[0], 
+            rem: "KRITI EDIFY PVT.LTD",            
+            amt: db.settings.baseSalary,           
+            mode: "Online"                         
+        });
+        db.settings.lastMonth = mKey;
+        dbRef.set(db); // Firebase में सुरक्षित करें
     }
+}
 
     function updateBaseSalary(v) { db.settings.baseSalary = parseFloat(v); dbRef.set(db); }
 
@@ -413,7 +424,9 @@ function changeLang(lang) {
     document.querySelector('.bal small').innerText = dictionary[lang].bal;
     document.querySelector('#dash h4').innerHTML = `<i class="fas fa-plus-circle"></i> ${dictionary[lang].add}`;
     document.getElementById('sBtn').innerText = dictionary[lang].save;
-    document.querySelector('.h-header + b').innerText = dictionary[lang].history;
+   const hText = document.getElementById('historyText');
+    if(hText) hText.innerText = dictionary[lang].history;
+localStorage.setItem('Surya_Lang', lang);
 }
     function waShare(d,r,a) { window.open(`https://api.whatsapp.com/send?text=*Surya Tracker Receipt*%0A📅 तारीख: ${d}%0A📝 विवरण: ${r}%0A💰 राशि: ₹${parseFloat(a).toLocaleString()}`); }
     function openPdfModal() { document.getElementById('pdfModal').style.display='flex'; }
@@ -471,9 +484,13 @@ function changeLang(lang) {
     window.onload = () => {
         if(localStorage.getItem('Surya_Logged') === 'true') document.getElementById('loginOverlay').style.display = 'none';
         if(localStorage.getItem('Surya_Theme') === 'dark') document.body.classList.add('dark');
-        document.getElementById('fD').valueAsDate = new Date();
-        draw();
-    };
+       const savedLang = localStorage.getItem('Surya_Lang') || 'en';
+    changeLang(savedLang);
+    document.getElementById('langSelect').value = savedLang;
+
+    document.getElementById('fD').valueAsDate = new Date();
+    draw();
+};
 </script>
 </body>
 </html>
