@@ -3,28 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salary</title>
-    
+    <title>Salary Tracker | Surya Zone</title>   
     <link rel="manifest" href="./manifest.json">
-    <meta name="theme-color" content="#334155">
-    
+    <meta name="theme-color" content="#334155">  
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-
     <style>
-        :root { 
-            --p: #334155; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --border: #e2e8f0;
-            --earn: #15803d; --exp: #be123c; --lwp: #b45309; --bal: #1d4ed8;
-        }
-        body.dark { 
-            --p: #1e293b; --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --border: #334155;
-            --earn: #22c55e; --exp: #f43f5e; --lwp: #f59e0b; --bal: #3b82f6;
-        }
+        /* CSS remains same as your original file */
+        :root { --p: #334155; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --border: #e2e8f0; --earn: #15803d; --exp: #be123c; --lwp: #b45309; --bal: #1d4ed8; }
+        body.dark { --p: #1e293b; --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --border: #334155; --earn: #22c55e; --exp: #f43f5e; --lwp: #f59e0b; --bal: #3b82f6; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 30px; transition: 0.3s; }
         .nav { background: var(--p); color: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100%; background: var(--card); z-index: 1001; transition: 0.3s; display: flex; flex-direction: column; box-shadow: 2px 0 10px rgba(0,0,0,0.1); border-right: 1px solid var(--border); }
@@ -55,9 +45,7 @@
         .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; }
         .overlay.active { display: block; }
         #loginOverlay { position: fixed; inset: 0; background: var(--p); z-index: 2000; display: flex; align-items: center; justify-content: center; }
-        .f-text { padding: 20px; font-size: 12px; color: gray; text-align: center; font-weight: 600; }
-        
-        /* Layout for Side-by-Side Chart */
+        .f-text { padding: 20px; font-size: 12px; color: gray; text-align: center; font-weight: 600; } 
         .flex-row { display: flex; gap: 15px; flex-wrap: wrap; }
         .flex-col-history { flex: 1; min-width: 300px; }
         .flex-col-chart { width: 220px; text-align: center; background: rgba(0,0,0,0.02); padding: 10px; border-radius: 15px; border: 1px solid var(--border); }
@@ -72,16 +60,12 @@
         <h3 style="color:var(--text); margin-top:0;">SURYA</h3>
         <input type="password" id="passCode" placeholder="पासवर्ड डालें">
         <button onclick="unlock()" class="btn">Unlock Dashboard</button>
-        <div style="margin: 10px 0; font-size: 12px; color: gray;">— या —</div>
-        <button onclick="loginWithGoogle()" class="btn" style="background:#4285F4; display:flex; align-items:center; justify-content:center; gap:10px;">
-            <i class="fab fa-google"></i> Login with Google
-        </button>
     </div>
 </div>
 
 <nav class="nav">
     <i class="fas fa-bars" onclick="tog()"></i>
-    <span style="font-weight: 800; letter-spacing: 1px;">SURYA</span>
+    <span style="font-weight: 800; letter-spacing: 1px;">SURYA ZONE</span>
     <i class="fas fa-moon" id="themeIcon" onclick="toggleTheme()" style="cursor:pointer;"></i>
 </nav>
 
@@ -91,7 +75,7 @@
     <div class="s-header">
         <img src="./profile.jpg" class="profile-pic">
         <div id="sideName" style="font-weight: 800; font-size: 18px; color: var(--text);">Suraj Kumar</div>
-        <div style="font-size: 11px; color: gray;">Salary Report</div>
+        <div style="font-size: 11px; color: gray;">Learner Facilitator</div>
     </div>
     <div style="padding: 15px; border-bottom: 1px solid var(--border);">
         <label style="font-size: 11px; font-weight: bold; color: gray;">MONTHLY SALARY (₹):</label>
@@ -104,20 +88,20 @@
         <li class="m-item" onclick="go('settings')"><i class="fas fa-cog"></i> Settings & Pass</li>
         <li class="m-item" onclick="logout()" style="color:red"><i class="fas fa-power-off"></i> Logout</li>
     </ul>
-    <div class="f-text">© 2026 surya | सूरज कुमार</div>
+    <div class="f-text">© 2026 Surya Zone | सूरज कुमार</div>
 </aside>
 
 <div class="container">
     <div id="dash" class="section active">
         <div class="stats-grid">
-            <div class="stat-card earn"><small>EARNED</small><div class="v" id="tS">₹0</div></div>
-            <div class="stat-card exp"><small>EXPENSES</small><div class="v" id="tE">₹0</div></div>
-            <div class="stat-card lwp"><small>LWP CUT</small><div class="v" id="tL">₹0</div></div>
-            <div class="stat-card bal"><small>BALANCE</small><div class="v" id="tB">₹0</div></div>
+            <div class="stat-card earn"><small id="l_earn">EARNED</small><div class="v" id="tS">₹0</div></div>
+            <div class="stat-card exp"><small id="l_exp">EXPENSES</small><div class="v" id="tE">₹0</div></div>
+            <div class="stat-card lwp"><small id="l_lwp">LWP CUT</small><div class="v" id="tL">₹0</div></div>
+            <div class="stat-card bal"><small id="l_bal">BALANCE</small><div class="v" id="tB">₹0</div></div>
         </div>
 
         <div class="card">
-            <h4><i class="fas fa-plus-circle"></i> नई एंट्री जोड़ें</h4>
+            <h4 id="l_add"><i class="fas fa-plus-circle"></i> नई एंट्री जोड़ें</h4>
             <input type="date" id="fD">
             <select id="fT">
                 <option value="s">Salary (Earned)</option>
@@ -147,17 +131,14 @@
                 <input type="text" id="qInput" placeholder="History सर्च करें..." oninput="draw()" style="padding:10px; margin-bottom:10px;">
                 <div id="mBody">Loading Transactions...</div>
             </div>
-
             <div class="flex-col-chart card">
                 <h4 style="font-size:12px; margin-bottom:10px;"><i class="fas fa-chart-pie"></i> Analysis</h4>
                 <canvas id="myChart" style="max-height:160px;"></canvas>
                 <div id="chartSummary" style="font-size: 10px; margin-top: 8px; text-align: left; color: gray;"></div>
             </div>
         </div>
-
-        <div class="f-text">© 2026 surya | सूरज कुमार</div>
     </div>
-
+    
     <div id="bin" class="section">
         <div class="card">
             <h4 style="display:flex; justify-content:space-between; align-items:center;">
@@ -175,15 +156,15 @@
             <label style="font-size: 12px; color: gray;">App Language:</label>
             <select id="langSelect" onchange="changeLang(this.value)" style="margin-bottom: 15px;">
                 <option value="en">English</option>
-                <option value="hi">हिंदी</option>
-                <option value="bh">भोजपुरी</option>
+                <option value="hi" selected>हिंदी</option>
+                <option value="bh">भोजpuri</option>
             </select>
             <input type="password" id="nP" placeholder="Enter New Password">
             <button class="btn" onclick="updatePass()">Update Password</button>
             <button onclick="go('dash')" class="btn" style="background:gray; margin-top:10px;">Back</button>
         </div>
     </div>
-    
+
     <div id="pdfModal" class="overlay" style="display:none; align-items:center; justify-content:center;">
         <div class="card" style="width:300px; z-index:2001;">
             <h4>Generate PDF Report</h4>
@@ -198,90 +179,72 @@
 </div>
 
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyCszu8DetVf4YrmPVY9PGgGyqdgH0SfZzw",
-        authDomain: "salary-732.firebaseapp.app",
-        projectId: "salary-732",
-        databaseURL: "https://salary-732-default-rtdb.firebaseio.com",
-        storageBucket: "salary-732.firebasestorage.app",
-        messagingSenderId: "352819231018",
-        appId: "1:352819231018:web:46e6ed4f010db3f779c653"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const dbRef = firebase.database().ref('surya_records');
-    const provider = new firebase.auth.GoogleAuthProvider();
+    const SUPABASE_URL = 'https://ybyjsdkhceqrsyivlkqx.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlieWpzZGtoY2VxcnN5aXZsa3F4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNTc2NjQsImV4cCI6MjA5MDczMzY2NH0.jIJbUH-Wgrlr0yE1-eV6cfQu7wvAAJ25xnI-nIvwBLI';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let db = { s: [], e: [], l: [], bin: [], settings: { baseSalary: 25000, lastMonth: "" } };
-    let curTab = 'all', edIdx = { t: null, i: -1 }, myChart;
+    let curTab = 'all';
+    let myChart = null;
+    let edIdx = null;
 
-    function loginWithGoogle() {
-        firebase.auth().signInWithPopup(provider).then((result) => {
-            localStorage.setItem('Surya_Logged', 'true');
-            document.getElementById('loginOverlay').style.display = 'none';
-            location.reload();
-        }).catch((error) => alert("Login Failed: " + error.message));
+    async function fetchAllData() {
+        const { data, error } = await supabaseClient.from('surya_records').select('*').order('date', { ascending: false });
+        if (data) {
+            db.s = data.filter(i => i.type === 's');
+            db.e = data.filter(i => i.type === 'e');
+            db.l = data.filter(i => i.type === 'l');
+            checkAutoSalary();
+            draw();
+        }
     }
 
-    firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-            document.getElementById('sideName').innerText = user.displayName;
-            document.querySelector('.sidebar .profile-pic').src = user.photoURL;
+    async function save() {
+        const d = document.getElementById('fD').value;
+        const t = document.getElementById('fT').value;
+        const m = document.getElementById('fM').value;
+        const r = document.getElementById('fR').value;
+        const a = document.getElementById('fA').value;
+
+        if(!r || !a) return alert("Details bhariye!");
+
+        const { error } = await supabaseClient.from('surya_records').insert([{ date: d, mode: m, rem: r, amt: parseFloat(a), type: t }]);
+        if (!error) {
+            fetchAllData();
+            document.getElementById('fR').value = '';
+            document.getElementById('fA').value = '';
+            alert('Cloud mein save ho gaya!');
         }
-        dbRef.on('value', (snap) => {
-            if(snap.val()) { 
-                db = snap.val(); 
-                if(!db.bin) db.bin = []; 
-                if(!db.settings) db.settings = { baseSalary: 25000, lastMonth: "" };
-                document.getElementById('baseSalary').value = db.settings.baseSalary;
-                checkAutoSalary();
-                draw(); 
-                drawBin(); 
-            }
-        });
-    });
+    }
 
     function checkAutoSalary() {
         const now = new Date();
         const mKey = (now.getMonth() + 1) + "-" + now.getFullYear();
-        if (db.settings.lastMonth !== mKey) {
-            db.s.push({ date: now.toISOString().split('T')[0], rem: "Monthly Salary (Auto)", amt: db.settings.baseSalary });
-            db.settings.lastMonth = mKey;
-            dbRef.set(db);
+        let savedMonth = localStorage.getItem('last_salary_month');
+        if (savedMonth !== mKey) {
+            const base = localStorage.getItem('baseSalary') || 25000;
+            supabaseClient.from('surya_records').insert([{ 
+                date: now.toISOString().split('T')[0], 
+                rem: "Monthly Salary (Auto)", 
+                amt: parseFloat(base), 
+                type: 's', 
+                mode: 'Online' 
+            }]).then(() => {
+                localStorage.setItem('last_salary_month', mKey);
+                fetchAllData();
+            });
         }
     }
-
-    function updateBaseSalary(v) { db.settings.baseSalary = parseFloat(v); dbRef.set(db); }
-
-    function unlock() {
-        if(document.getElementById('passCode').value === (localStorage.getItem('Surya_Pass') || 'suraj123')) {
-            document.getElementById('loginOverlay').style.display = 'none';
-            localStorage.setItem('Surya_Logged', 'true');
-            draw();
-        } else alert('गलत पासवर्ड!');
-    }
-
-    function logout() { firebase.auth().signOut(); localStorage.removeItem('Surya_Logged'); location.reload(); }
-    function toggleTheme() {
-        document.body.classList.toggle('dark');
-        const isDark = document.body.classList.contains('dark');
-        document.getElementById('themeIcon').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
-        localStorage.setItem('Surya_Theme', isDark ? 'dark' : 'light');
-    }
-
-    function tog() { document.getElementById('side').classList.toggle('active'); document.getElementById('over').classList.toggle('active'); }
-    function go(p) { document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); document.getElementById(p).classList.add('active'); tog(); }
-    function setTab(t, b) { curTab = t; document.querySelectorAll('.tab').forEach(x => x.classList.remove('active')); b.classList.add('active'); draw(); }
 
     function draw() {
         const mb = document.getElementById('mBody'); 
         const search = document.getElementById('qInput').value.toLowerCase();
         mb.innerHTML = ''; 
         let s=0, e=0, l=0;
-        
-        (db.s||[]).forEach(x=>s+=parseFloat(x.amt)); 
-        (db.e||[]).forEach(x=>e+=parseFloat(x.amt)); 
-        (db.l||[]).forEach(x=>l+=parseFloat(x.amt));
+
+        db.s.forEach(x=>s+=parseFloat(x.amt)); 
+        db.e.forEach(x=>e+=parseFloat(x.amt)); 
+        db.l.forEach(x=>l+=parseFloat(x.amt));
 
         document.getElementById('tS').innerText = '₹'+s.toLocaleString(); 
         document.getElementById('tE').innerText = '₹'+e.toLocaleString();
@@ -289,9 +252,9 @@
         document.getElementById('tB').innerText = '₹'+(s-e-l).toLocaleString();
 
         let list = (curTab === 'all') ? 
-            [...(db.s||[]).map((x,i)=>({...x,t:'s',idx:i})), ...(db.e||[]).map((x,i)=>({...x,t:'e',idx:i})), ...(db.l||[]).map((x,i)=>({...x,t:'l',idx:i}))] : 
-            (db[curTab]||[]).map((x,i)=>({...x,t:curTab,idx:i}));
-        
+            [...db.s.map(x=>({...x,t:'s'})), ...db.e.map(x=>({...x,t:'e'})), ...db.l.map(x=>({...x,t:'l'}))] : 
+            db[curTab].map(x=>({...x,t:curTab}));       
+
         list.sort((a,b)=>new Date(b.date)-new Date(a.date)).filter(item => {
             return item.rem.toLowerCase().includes(search) || item.date.includes(search);
         }).forEach(item => {
@@ -300,8 +263,7 @@
                 <div style="text-align:right;">
                     <b style="color:${item.t==='s'?'green':'red'}">₹${parseFloat(item.amt).toLocaleString()}</b>
                     <div class="icons">
-                        <i class="fas fa-edit" onclick="edit('${item.t}',${item.idx})" style="color:blue; cursor:pointer;"></i>
-                        <i class="fas fa-trash" onclick="moveToBin('${item.t}',${item.idx})" style="color:red; cursor:pointer;"></i>
+                        <i class="fas fa-trash" onclick="deleteRecord('${item.id}')" style="color:red; cursor:pointer;"></i>
                         <i class="fab fa-whatsapp" onclick="waShare('${item.date}','${item.rem}','${item.amt}')" style="color:green; cursor:pointer;"></i>
                     </div>
                 </div>
@@ -310,21 +272,21 @@
         updateChart(s, e, l);
     }
 
+    async function deleteRecord(id) {
+        if(confirm("Delete karein?")) {
+            await supabaseClient.from('surya_records').delete().eq('id', id);
+            fetchAllData();
+        }
+    }
+
     function updateChart(s, e, l) {
-        const canvas = document.getElementById('myChart');
-        if(!canvas) return;
-        const ctx = canvas.getContext('2d');
+        const ctx = document.getElementById('myChart').getContext('2d');
         if (myChart) myChart.destroy();
         myChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
                 labels: ['Earned', 'Expense', 'LWP'],
-                datasets: [{
-                    data: [s, e, l],
-                    backgroundColor: ['#22c55e', '#f43f5e', '#f59e0b'],
-                    borderWidth: 2,
-                    borderColor: 'var(--card)'
-                }]
+                datasets: [{ data: [s, e, l], backgroundColor: ['#22c55e', '#f43f5e', '#f59e0b'], borderWidth: 2 }]
             },
             options: { cutout: '70%', plugins: { legend: { display: false } }, responsive: true }
         });
@@ -335,144 +297,54 @@
         `;
     }
 
-    function save() {
-        const d=document.getElementById('fD').value, t=document.getElementById('fT').value, m=document.getElementById('fM').value, r=document.getElementById('fR').value, a=document.getElementById('fA').value;
-        if(!d||!a) return alert('तारीख और राशि भरें');
-        if(!db[t]) db[t] = [];
-        if(edIdx.i === -1) db[t].push({date:d, mode:m, rem:r, amt:a});
-        else { db[edIdx.t][edIdx.i] = {date:d, mode:m, rem:r, amt:a}; edIdx = {t:null, i:-1}; document.getElementById('sBtn').innerText='Cloud में सुरक्षित करें'; }
-        dbRef.set(db).then(()=> { document.getElementById('fR').value=''; document.getElementById('fA').value=''; });
+    function unlock() {
+        if(document.getElementById('passCode').value === (localStorage.getItem('Surya_Pass') || 'suraj123')) {
+            document.getElementById('loginOverlay').style.display = 'none';
+            localStorage.setItem('Surya_Logged', 'true');
+        } else alert('गलत पासवर्ड!');
     }
 
-    function edit(t, i) {
-        const item = db[t][i];
-        document.getElementById('fD').value = item.date;
-        document.getElementById('fT').value = t;
-        document.getElementById('fR').value = item.rem;
-        document.getElementById('fA').value = item.amt;
-        edIdx = {t: t, i: i};
-        document.getElementById('sBtn').innerText = 'Update Record';
-        window.scrollTo(0,0);
+    function toggleTheme() {
+        document.body.classList.toggle('dark');
+        const isDark = document.body.classList.contains('dark');
+        document.getElementById('themeIcon').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+        localStorage.setItem('Surya_Theme', isDark ? 'dark' : 'light');
     }
 
-    function moveToBin(t, i) {
-        if(confirm('Recycle Bin में भेजें?')) {
-            let item = db[t].splice(i,1)[0];
-            item.oldT = t;
-            if(!db.bin) db.bin = [];
-            db.bin.push(item);
-            dbRef.set(db);
-        }
-    }
-
-    function drawBin() {
-        const bb = document.getElementById('binBody'); bb.innerHTML = '';
-        if(!db.bin || db.bin.length === 0) { bb.innerHTML = '<center style="padding:20px; color:gray;">Bin is empty</center>'; return; }
-        db.bin.forEach((x,i)=>{
-            bb.innerHTML += `<div class="item-row"><div><b>${x.rem}</b></div><button onclick="restore(${i})">Restore</button></div>`;
-        });
-    }
-    function restore(i) { let item = db.bin.splice(i,1)[0]; db[item.oldT].push(item); dbRef.set(db); }
-    function emptyBin() { if(confirm('Empty bin?')) { db.bin = []; dbRef.set(db); } }
-    function updatePass() { let n=document.getElementById('nP').value; if(n){localStorage.setItem('Surya_Pass',n); alert('Updated!');} }
-function changeLang(lang) {
-    const dictionary = {
-        en: {
-            earn: "EARNED",
-            exp: "EXPENSES",
-            lwp: "LWP CUT",
-            bal: "BALANCE",
-            add: "Add New Entry",
-            save: "Save to Cloud",
-            history: "Transaction History"
-        },
-        hi: {
-            earn: "कुल कमाई",
-            exp: "कुल खर्च",
-            lwp: "एलडब्ल्यूपी कटौती",
-            bal: "बचा हुआ बैलेंस",
-            add: "नई एंट्री जोड़ें",
-            save: "क्लाउड में सेव करें",
-            history: "लेन-देन इतिहास"
-        },
-        bh: {
-            earn: "कुल कमाई",
-            exp: "कुल खरचा",
-            lwp: "एलडब्ल्यूपी कटल",
-            bal: "बचल बैलेंस",
-            add: "नया एंट्री जोड़ल जाव",
-            save: "क्लाउड में सेव करीं",
-            history: "लेन-देन के इतिहास"
-        }
-    };
-
-    // टेक्स्ट बदलने के लिए IDs का इस्तेमाल करें
-    document.querySelector('.earn small').innerText = dictionary[lang].earn;
-    document.querySelector('.exp small').innerText = dictionary[lang].exp;
-    document.querySelector('.lwp small').innerText = dictionary[lang].lwp;
-    document.querySelector('.bal small').innerText = dictionary[lang].bal;
-    document.querySelector('#dash h4').innerHTML = `<i class="fas fa-plus-circle"></i> ${dictionary[lang].add}`;
-    document.getElementById('sBtn').innerText = dictionary[lang].save;
-    document.querySelector('.h-header + b').innerText = dictionary[lang].history;
-}
-    function waShare(d,r,a) { window.open(`https://api.whatsapp.com/send?text=*Surya Tracker Receipt*%0A📅 तारीख: ${d}%0A📝 विवरण: ${r}%0A💰 राशि: ₹${parseFloat(a).toLocaleString()}`); }
+    function tog() { document.getElementById('side').classList.toggle('active'); document.getElementById('over').classList.toggle('active'); }
+    function go(p) { document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); document.getElementById(p).classList.add('active'); tog(); }
+    function setTab(t, b) { curTab = t; document.querySelectorAll('.tab').forEach(x => x.classList.remove('active')); b.classList.add('active'); draw(); }
+    function updateBaseSalary(v) { localStorage.setItem('baseSalary', v); }
     function openPdfModal() { document.getElementById('pdfModal').style.display='flex'; }
     function closePdfModal() { document.getElementById('pdfModal').style.display='none'; }
+    function logout() { localStorage.removeItem('Surya_Logged'); location.reload(); }
+    function waShare(d,r,a) { window.open(`https://api.whatsapp.com/send?text=*Surya Tracker Receipt*%0A📅 तारीख: ${d}%0A📝 विवरण: ${r}%0A💰 राशि: ₹${parseFloat(a).toLocaleString()}`); }
     function leaveRequest() { window.open(`https://api.whatsapp.com/send?text=नमस्ते सर,%0Aमुझे कुछ जरूरी काम हेतु छुट्टी चाहिए। कृपया स्वीकार करें।`); }
-    
+
     function generatePDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    let s = document.getElementById('rS').value, e = document.getElementById('rE').value, rows = [], ts=0, te=0, tl=0;
-    
-    const list = [...(db.s||[]), ...(db.e||[]), ...(db.l||[])];
-    list.forEach(x => { 
-        if((!s || x.date >= s) && (!e || x.date <= e)) {
-            rows.push([x.date, x.rem, "INR " + parseFloat(x.amt).toLocaleString()]);
-            if((db.s||[]).includes(x)) ts += parseFloat(x.amt);
-            else if((db.e||[]).includes(x)) te += parseFloat(x.amt);
-            else if((db.l||[]).includes(x)) tl += parseFloat(x.amt);
-        }
-    });
-
-    // --- PDF Design Header ---
-    doc.setFillColor(51, 65, 85); // Dark Slate color
-    doc.rect(0, 0, 210, 40, 'F'); // Top Header Bar
-    
-    doc.setFontSize(22);
-    doc.setTextColor(255, 255, 255);
-    doc.text("SALARY REPORT", 14, 20);
-    
-    doc.setFontSize(10);
-    doc.text("Generated by: SURYA", 14, 30);
-    doc.text(`Date: ${new Date().toLocaleDateString()}`, 160, 30);
-
-    // --- Table with Professional Colors ---
-    doc.autoTable({ 
-        head: [['Date', 'Description', 'Amount']], 
-        body: rows, 
-        startY: 45,
-        theme: 'grid', // Grid lines for clean look
-        headStyles: { fillColor: [51, 65, 85], textColor: [255, 255, 255], fontStyle: 'bold' },
-        alternateRowStyles: { fillColor: [245, 247, 250] }, // Light grey rows
-        styles: { fontSize: 10, cellPadding: 5 },
-        foot: [['', 'NET BALANCE', 'INR ' + (ts - te - tl).toLocaleString()]], // Total at bottom
-        footStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' }
-    });
-
-    // --- Footer ---
-    doc.setFontSize(9);
-    doc.setTextColor(100);
-    doc.text("This is a computer generated document.", 14, doc.lastAutoTable.finalY + 10);
-
-    doc.save(`Surya_Report_${new Date().getTime()}.pdf`);
-}
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        let sDate = document.getElementById('rS').value, eDate = document.getElementById('rE').value;
+        let rows = [], ts=0, te=0, tl=0;
+        const list = [...db.s, ...db.e, ...db.l];
+        list.forEach(x => {
+            if((!sDate || x.date >= sDate) && (!eDate || x.date <= eDate)) {
+                rows.push([x.date, x.rem, "INR " + parseFloat(x.amt).toLocaleString()]);
+                if(x.type === 's') ts += parseFloat(x.amt);
+                else if(x.type === 'e') te += parseFloat(x.amt);
+                else if(x.type === 'l') tl += parseFloat(x.amt);
+            }
+        });
+        doc.autoTable({ head: [['Date', 'Description', 'Amount']], body: rows });
+        doc.save('Surya_Report.pdf');
+    }
 
     window.onload = () => {
         if(localStorage.getItem('Surya_Logged') === 'true') document.getElementById('loginOverlay').style.display = 'none';
         if(localStorage.getItem('Surya_Theme') === 'dark') document.body.classList.add('dark');
+        document.getElementById('baseSalary').value = localStorage.getItem('baseSalary') || 25000;
         document.getElementById('fD').valueAsDate = new Date();
-        draw();
+        fetchAllData();
     };
 </script>
 </body>
