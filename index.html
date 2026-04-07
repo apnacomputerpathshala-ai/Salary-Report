@@ -193,7 +193,7 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlieWpzZGtoY2VxcnN5aXZsa3F4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNTc2NjQsImV4cCI6MjA5MDczMzY2NH0.jIJbUH-Wgrlr0yE1-eV6cfQu7wvAAJ25xnI-nIvwBLI';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     
-    let db = { s: [], e: [], l: [], bin: [], settings: { baseSalary: 25000, lastMonth: "" } };
+    let db = { s: [], e: [], l: [], bin: [], settings: { baseSalary:, lastMonth: "" } };
     let curTab = 'all', myChart = null, edIdx = null;
 
     async function fetchAllData() {
