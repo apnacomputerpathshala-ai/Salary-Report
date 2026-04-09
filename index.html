@@ -404,7 +404,7 @@
     window.onload = () => {
         if(localStorage.getItem('Surya_Logged') === 'true') document.getElementById('loginOverlay').style.display = 'none';
         if(localStorage.getItem('Surya_Theme') === 'dark') document.body.classList.add('dark');
-        document.getElementById('baseSalary').value = localStorage.getItem('baseSalary') || 25000;
+        document.getElementById('baseSalary').value = localStorage.getItem('baseSalary') || 5000;
         document.getElementById('fD').valueAsDate = new Date();
         fetchAllData();
     };
