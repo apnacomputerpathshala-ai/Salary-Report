@@ -193,7 +193,7 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlieWpzZGtoY2VxcnN5aXZsa3F4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNTc2NjQsImV4cCI6MjA5MDczMzY2NH0.jIJbUH-Wgrlr0yE1-eV6cfQu7wvAAJ25xnI-nIvwBLI';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     
-    let db = { s: [], e: [], l: [], bin: [], settings: { baseSalary:, lastMonth: "" } };
+    let db = { s: [], e: [], l: [], bin: [], settings: { baseSalary:0, lastMonth: "" } };
     let curTab = 'all', myChart = null, edIdx = null;
 
     async function fetchAllData() {
@@ -233,7 +233,7 @@
         const now = new Date();
         const mKey = (now.getMonth() + 1) + "-" + now.getFullYear();
         if (localStorage.getItem('last_salary_month') !== mKey) {
-            const base = localStorage.getItem('baseSalary') || 7000;
+            const base = localStorage.getItem('baseSalary') ||0;
             supabaseClient.from('surya_records').insert([{ 
                 date: now.toISOString().split('T')[0], rem: "KRITI EDIFY PVT.LTD", amt: parseFloat(base), type: 's', mode: 'Online' 
             }]).then(() => {
@@ -404,7 +404,7 @@
     window.onload = () => {
         if(localStorage.getItem('Surya_Logged') === 'true') document.getElementById('loginOverlay').style.display = 'none';
         if(localStorage.getItem('Surya_Theme') === 'dark') document.body.classList.add('dark');
-        document.getElementById('baseSalary').value = localStorage.getItem('baseSalary') || 5000;
+        document.getElementById('baseSalary').value = localStorage.getItem('baseSalary') ||0;
         document.getElementById('fD').valueAsDate = new Date();
         fetchAllData();
     };
