@@ -55,7 +55,14 @@
         .f-text { padding: 20px; font-size: 12px; color: gray; text-align: center; font-weight: 600; } 
         .flex-row { display: flex; gap: 15px; flex-wrap: wrap; }
         .flex-col-history { flex: 1; min-width: 300px; }
-        .flex-col-chart { width: 220px; text-align: center; background: rgba(0,0,0,0.02); padding: 10px; border-radius: 15px; border: 1px solid var(--border); }
+.flex-col-chart {
+    min-height: 250px; /* ऊँचाई थोड़ी बढ़ा दी गई है */
+    text-align: center;
+    background: rgba(0,0,0,0.02);
+    padding: 15px;
+    border-radius: 15px;
+    border: 1px solid var(--border);
+}
         @media (max-width: 600px) { .flex-col-chart { width: 100%; } }
     </style>
 </head>
@@ -101,38 +108,44 @@
 <div class="container">
     <div id="dash" class="section active">
         <div class="stats-grid">
-            <div class="stat-card earn"><small id="l_earn">EARNED</small><div class="v" id="tS">₹0</div></div>
-            <div class="stat-card exp"><small id="l_exp">EXPENSES</small><div class="v" id="tE">₹0</div></div>
-            <div class="stat-card lwp"><small id="l_lwp">LWP CUT</small><div class="v" id="tL">₹0</div></div>
-            <div class="stat-card bal"><small id="l_bal">BALANCE</small><div class="v" id="tB">₹0</div></div>
-        </div>
+    <div class="stat-card earn"><small>TOTAL EARNED</small><div class="v" id="tS">₹0</div></div>
+    <div class="stat-card exp"><small>TOTAL EXPENSES</small><div class="v" id="tE">₹0</div></div>
+    <div class="stat-card lwp"><small>LWP CUT</small><div class="v" id="tL">₹0</div></div>
+    <div class="stat-card bal" style="border-left-color: #22c55e;"><small>IN YOUR BANK</small><div class="v" id="tBank">₹0</div></div>
+    <div class="stat-card bal" style="border-left-color: #000; grid-column: span 2;"><small>BALANCE (WITH SIR)</small><div class="v" id="tSir">₹0</div></div>
+</div>
 
-        <div class="card">
-            <h4 id="l_add"><i class="fas fa-plus-circle"></i> नई एंट्री जोड़ें</h4>
-            <input type="date" id="fD">
-            <select id="fT">
-                <option value="s">Salary (Earned)</option>
-                <option value="e">Expense</option>
-                <option value="l">LWP Cut</option>
-            </select>
-            <select id="fM">
-                <option value="Online">Online</option>
-                <option value="Cash">Cash</option>
-            </select>
-            <input type="text" id="fR" placeholder="विवरण (Remark)">
-            <input type="number" id="fA" placeholder="राशि (Amount)">
-            <button onclick="save()" id="sBtn" class="btn">Cloud में सुरक्षित करें</button>
-        </div>
-
+<div class="card">
+    <h4 id="l_add"><i class="fas fa-plus-circle"></i> नई एंट्री जोड़ें</h4>
+    <input type="date" id="fD">
+    <select id="fT">
+        <option value="s">Salary (Earned)</option>
+        <option value="e">Expense</option>
+        <option value="l">LWP Cut</option>
+        <option value="t">Transfer (Sir to Bank)</option>
+    </select>
+    <select id="fSource">
+        <option value="Sir">पैसे सर के पास हैं (Sir)</option>
+        <option value="Bank">पैसे बैंक में हैं (Bank)</option>
+    </select>
+    <select id="fM">
+        <option value="Online">Online</option>
+        <option value="Cash">Cash</option>
+    </select>
+    <input type="text" id="fR" placeholder="विवरण (Remark)">
+    <input type="number" id="fA" placeholder="राशि (Amount)">
+    <button id="sBtn" onclick="save()" class="btn">Cloud में सुरक्षित करें</button>
+</div>
         <div class="flex-row">
             <div class="flex-col-history card">
                 <div class="h-header">
                     <div class="tab-box">
-                        <button class="tab active" onclick="setTab('all', this)">All</button>
-                        <button class="tab" onclick="setTab('s', this)">Earned</button>
-                        <button class="tab" onclick="setTab('e', this)">Exp</button>
-                        <button class="tab" onclick="setTab('l', this)">LWP</button>
-                    </div>
+    <button class="tab active" onclick="setTab('all', this)">All</button>
+    <button class="tab" onclick="setTab('s', this)">Earned</button>
+    <button class="tab" onclick="setTab('e', this)">Exp</button>
+    <button class="tab" onclick="setTab('l', this)">LWP</button>
+    <button class="tab" onclick="setTab('bank_history', this)">Bank</button>
+</div>
                     <button class="pdf-btn" onclick="openPdfModal()"><i class="fas fa-file-pdf"></i></button>
                 </div>
                 <input type="text" id="qInput" placeholder="History सर्च करें..." oninput="draw()" style="padding:10px; margin-bottom:10px;">
@@ -193,42 +206,50 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlieWpzZGtoY2VxcnN5aXZsa3F4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNTc2NjQsImV4cCI6MjA5MDczMzY2NH0.jIJbUH-Wgrlr0yE1-eV6cfQu7wvAAJ25xnI-nIvwBLI';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     
-    let db = { s: [], e: [], l: [], bin: [], settings: { baseSalary:0, lastMonth: "" } };
+    let db = { s: [], e: [], l: [], t: [], bin: [], settings: { baseSalary:0, lastMonth: "" } };
     let curTab = 'all', myChart = null, edIdx = null;
 
     async function fetchAllData() {
-        const { data, error } = await supabaseClient.from('surya_records').select('*').order('date', { ascending: false });
-        if (data) {
-            db.s = data.filter(i => i.type === 's');
-            db.e = data.filter(i => i.type === 'e');
-            db.l = data.filter(i => i.type === 'l');
-            checkAutoSalary();
-            draw();
-        }
+    const { data, error } = await supabaseClient.from('surya_records').select('*').order('date', { ascending: false });
+    if (data) {
+        db.s = data.filter(i => i.type === 's'); // Salary
+        db.e = data.filter(i => i.type === 'e'); // Expense
+        db.l = data.filter(i => i.type === 'l'); // LWP
+        db.t = data.filter(i => i.type === 't'); // Transfer (यह नया है)
+        checkAutoSalary();
+        draw();
     }
-
+}
     async function save() {
-        const d = document.getElementById('fD').value, t = document.getElementById('fT').value;
-        const m = document.getElementById('fM').value, r = document.getElementById('fR').value, a = document.getElementById('fA').value;
-        if(!r || !a) return alert("Details bhariye!");
-        
-        const btn = document.getElementById('sBtn');
-        btn.disabled = true; btn.innerText = "Processing...";
+    const d = document.getElementById('fD').value;
+    const t = document.getElementById('fT').value;
+    const m = document.getElementById('fM').value;
+    const r = document.getElementById('fR').value;
+    const a = document.getElementById('fA').value;
+    const src = document.getElementById('fSource').value; // सोर्स वैल्यू लें
 
-        if(edIdx) { // Update logic
-            await supabaseClient.from('surya_records').update({ date: d, mode: m, rem: r, amt: parseFloat(a), type: t }).eq('id', edIdx);
-            edIdx = null;
-            btn.style.background = "";
-        } else { // Insert logic
-            await supabaseClient.from('surya_records').insert([{ date: d, mode: m, rem: r, amt: parseFloat(a), type: t }]);
-        }
-        
-        alert('Done!');
-        document.getElementById('fR').value = ''; document.getElementById('fA').value = '';
-        btn.disabled = false; btn.innerText = "Cloud mein सुरक्षित करें";
-        fetchAllData();
+    if(!r || !a) return alert("Details bhariye!");
+    
+    const btn = document.getElementById('sBtn');
+    btn.disabled = true; btn.innerText = "Processing...";
+
+    const payload = { date: d, mode: m, rem: r, amt: parseFloat(a), type: t, source: src };
+
+    if(edIdx) { 
+        await supabaseClient.from('surya_records').update(payload).eq('id', edIdx);
+        edIdx = null;
+        btn.innerText = "Cloud mein सुरक्षित करें";
+        btn.style.background = "";
+    } else { 
+        await supabaseClient.from('surya_records').insert([payload]);
     }
-
+    
+    alert('Done!');
+    document.getElementById('fR').value = ''; 
+    document.getElementById('fA').value = '';
+    btn.disabled = false; 
+    fetchAllData();
+}
     function checkAutoSalary() {
         const now = new Date();
         const mKey = (now.getMonth() + 1) + "-" + now.getFullYear();
@@ -244,41 +265,87 @@
     }
 
     function draw() {
-        const mb = document.getElementById('mBody'); 
-        const search = document.getElementById('qInput').value.toLowerCase();
-        mb.innerHTML = ''; 
-        let s=0, e=0, l=0;
+    const mb = document.getElementById('mBody'); 
+    const search = document.getElementById('qInput').value.toLowerCase();
+    mb.innerHTML = ''; 
+    let earned = 0, exp = 0, lwp = 0, bankBal = 0, sirBal = 0;
 
-        db.s.forEach(x=>s+=parseFloat(x.amt)); 
-        db.e.forEach(x=>e+=parseFloat(x.amt)); 
-        db.l.forEach(x=>l+=parseFloat(x.amt));
+    // सभी प्रकार के डेटा को एक लिस्ट में जोड़ना
+    let list = [
+        ...db.s.map(x=>({...x, t:'s'})), 
+        ...db.e.map(x=>({...x, t:'e'})), 
+        ...db.l.map(x=>({...x, t:'l'})), 
+        ...db.t.map(x=>({...x, t:'t'}))
+    ];
 
-        document.getElementById('tS').innerText = '₹'+s.toLocaleString(); 
-        document.getElementById('tE').innerText = '₹'+e.toLocaleString();
-        document.getElementById('tL').innerText = '₹'+l.toLocaleString(); 
-        document.getElementById('tB').innerText = '₹'+(s-e-l).toLocaleString();
+    // बैलेंस कैलकुलेशन
+    list.forEach(item => {
+        let amt = parseFloat(item.amt) || 0;
+        let src = item.source || 'Sir';
 
-        let list = (curTab === 'all') ? 
-            [...db.s.map(x=>({...x,t:'s'})), ...db.e.map(x=>({...x,t:'e'})), ...db.l.map(x=>({...x,t:'l'}))] : 
-            db[curTab].map(x=>({...x,t:curTab}));       
+        if (item.t === 's') { 
+            earned += amt; 
+            sirBal += amt; 
+        } else if (item.t === 'e') { 
+            exp += amt; 
+            if (src === 'Bank') bankBal -= amt; else sirBal -= amt; 
+        } else if (item.t === 'l') { 
+            lwp += amt; 
+            sirBal -= amt; 
+        } else if (item.t === 't') { 
+            sirBal -= amt; 
+            bankBal += amt; 
+        }
+    });
 
-        list.sort((a,b)=>new Date(b.date)-new Date(a.date)).filter(i => i.rem.toLowerCase().includes(search) || i.date.includes(search)).forEach(item => {
+    // कार्ड्स अपडेट करें
+    document.getElementById('tS').innerText = '₹' + earned.toLocaleString();
+    document.getElementById('tE').innerText = '₹' + exp.toLocaleString();
+    document.getElementById('tL').innerText = '₹' + lwp.toLocaleString();
+    document.getElementById('tBank').innerText = '₹' + bankBal.toLocaleString();
+    document.getElementById('tSir').innerText = '₹' + sirBal.toLocaleString();
+
+    // लिस्ट रेंडरिंग और फिल्टरिंग
+    list.sort((a,b) => new Date(b.date) - new Date(a.date))
+        .filter(item => {
+            const matchesSearch = item.rem.toLowerCase().includes(search);
+            
+            // नया फ़िल्टर लॉजिक
+            if (curTab === 'all') return matchesSearch;
+            if (curTab === 'bank_history') {
+                // बैंक हिस्ट्री में ट्रांसफर (t) और वो खर्चे (e) दिखेंगे जिनका सोर्स Bank है
+                return matchesSearch && (item.t === 't' || (item.t === 'e' && item.source === 'Bank'));
+            }
+            return matchesSearch && item.t === curTab;
+        })
+        .forEach(item => {
+            // रंगों का चुनाव
+            let color = "#be123c"; // Default Red (Exp)
+            if (item.t === 's') color = "#15803d"; // Green (Earned)
+            if (item.t === 't') color = "#1d4ed8"; // Blue (Transfer)
+
+            let label = "";
+            if (item.t === 't') label = "Transfer (Sir ➔ Bank)";
+            else label = item.source === 'Bank' ? "🏦 Bank Source" : "💼 Sir Source";
+
             mb.innerHTML += `
             <div class="item-row">
-                <div class="item-info"><small>${item.date} (${item.mode})</small><br><b>${item.rem}</b></div>
+                <div class="item-info">
+                    <small>${item.date} (${item.mode}) - <b>${label}</b></small><br>
+                    <b>${item.rem}</b>
+                </div>
                 <div class="item-amt-box">
-                    <b style="color:${item.t==='s'?'green':'red'}">₹${parseFloat(item.amt).toLocaleString()}</b>
+                    <b style="color:${color}">₹${parseFloat(item.amt).toLocaleString()}</b>
                     <div class="icons">
-                        <i class="fas fa-edit" onclick="editRec('${item.id}','${item.date}','${item.type}','${item.mode}','${item.rem}','${item.amt}')" style="color:blue; cursor:pointer;"></i>
-                        <i class="fas fa-trash" onclick="deleteRecord('${item.id}')" style="color:red; cursor:pointer;"></i>
-                        <i class="fab fa-whatsapp" onclick="waShare('${item.date}','${item.rem}','${item.amt}')" style="color:green; cursor:pointer;"></i>
+                        <i class="fab fa-whatsapp" style="color:#25D366; cursor:pointer;" onclick="waShare('${item.date}', '${item.rem}', '${item.amt}')"></i>
+                        <i class="fas fa-edit" style="color:blue; cursor:pointer;" onclick="editRec('${item.id}','${item.date}','${item.type}','${item.mode}','${item.rem}','${item.amt}', '${item.source}')"></i>
+                        <i class="fas fa-trash" style="color:red; cursor:pointer;" onclick="deleteRecord('${item.id}')"></i>
                     </div>
                 </div>
             </div>`;
         });
-        updateChart(s, e, l);
-    }
-
+    updateChart(earned, exp, lwp, bankBal, sirBal);
+}
     function editRec(id, d, t, m, r, a) {
         edIdx = id;
         document.getElementById('fD').value = d;
@@ -320,16 +387,47 @@
 
     function emptyBin() { if(confirm("Empty Bin?")) { db.bin = []; localStorage.setItem('Surya_Bin', '[]'); showBin(); } }
 
-    function updateChart(s, e, l) {
-        const ctx = document.getElementById('myChart').getContext('2d');
-        if (myChart) myChart.destroy();
-        myChart = new Chart(ctx, {
-            type: 'doughnut', data: { labels: ['Earned', 'Exp', 'LWP'], datasets: [{ data: [s, e, l], backgroundColor: ['#22c55e', '#f43f5e', '#f59e0b'], borderWidth: 2 }] },
-            options: { cutout: '70%', plugins: { legend: { display: false } }, responsive: true }
-        });
-        document.getElementById('chartSummary').innerHTML = `<div style="color:#22c55e">● Earn: ₹${s.toLocaleString()}</div><div style="color:#f43f5e">● Exp: ₹${e.toLocaleString()}</div><div style="color:#f59e0b">● LWP: ₹${l.toLocaleString()}</div>`;
-    }
+    function updateChart(s, e, l, bank, sir) {
+    const ctx = document.getElementById('myChart').getContext('2d');
+    if (myChart) myChart.destroy();
+    
+    myChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['In Bank', 'With Sir', 'Expenses', 'LWP Cut'],
+            datasets: [{
+                // हम ग्राफ में Assets (Bank/Sir) और Cuts (Exp/LWP) दिखा रहे हैं
+                data: [bank, sir, e, l], 
+                backgroundColor: [
+                    '#1d4ed8', // Bank (Blue)
+                    '#64748b', // With Sir (Gray)
+                    '#be123c', // Exp (Red)
+                    '#f59e0b'  // LWP (Orange)
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            cutout: '65%',
+            plugins: {
+                legend: { display: false }
+            },
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
 
+    // Chart Summary में Total Earned को सबसे ऊपर जोड़ दिया गया है
+    document.getElementById('chartSummary').innerHTML = `
+        <div style="color:#15803d; font-size: 11px; font-weight: 800; margin-bottom: 5px; border-bottom: 1px solid #ddd; padding-bottom: 2px;">
+            <i class="fas fa-wallet"></i> TOTAL EARNED: ₹${s.toLocaleString()}
+        </div>
+        <div style="color:#1d4ed8;">● In Bank: ₹${bank.toLocaleString()}</div>
+        <div style="color:#64748b;">● With Sir: ₹${sir.toLocaleString()}</div>
+        <div style="color:#be123c;">● Expenses: ₹${e.toLocaleString()}</div>
+        <div style="color:#f59e0b;">● LWP Cut: ₹${l.toLocaleString()}</div>
+    `;
+}
     function unlock() { if(document.getElementById('passCode').value === (localStorage.getItem('Surya_Pass') || 'suraj123')) { document.getElementById('loginOverlay').style.display = 'none'; localStorage.setItem('Surya_Logged', 'true'); } else alert('गलत पासवर्ड!'); }
     function toggleTheme() { document.body.classList.toggle('dark'); const isDark = document.body.classList.contains('dark'); document.getElementById('themeIcon').className = isDark ? 'fas fa-sun' : 'fas fa-moon'; localStorage.setItem('Surya_Theme', isDark ? 'dark' : 'light'); }
     function tog() { document.getElementById('side').classList.toggle('active'); document.getElementById('over').classList.toggle('active'); }
@@ -345,50 +443,49 @@
    function generatePDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    let s = document.getElementById('rS').value, e = document.getElementById('rE').value, rows = [], ts=0, te=0, tl=0;
+    let s = document.getElementById('rS').value, e = document.getElementById('rE').value, rows = [];
+    let ts=0, te=0, tl=0, bankBal=0, sirBal=0;
     
-    const list = [...(db.s||[]), ...(db.e||[]), ...(db.l||[])];
+    // सभी रिकॉर्ड्स को प्रोसेस करें
+    let list = [...db.s, ...db.e, ...db.l, ...db.t];
+    list.sort((a,b) => new Date(a.date) - new Date(b.date));
+
     list.forEach(x => { 
         if((!s || x.date >= s) && (!e || x.date <= e)) {
-            rows.push([x.date, x.rem, "INR " + parseFloat(x.amt).toLocaleString()]);
-            if((db.s||[]).includes(x)) ts += parseFloat(x.amt);
-            else if((db.e||[]).includes(x)) te += parseFloat(x.amt);
-            else if((db.l||[]).includes(x)) tl += parseFloat(x.amt);
+            let src = x.source || (x.type === 't' ? 'Transfer' : 'Sir');
+            rows.push([x.date, x.rem, src, "₹" + parseFloat(x.amt).toLocaleString()]);
+            
+            // कैलकुलेशन लॉजिक
+            let a = parseFloat(x.amt);
+            if(x.type === 's') sirBal += a;
+            else if(x.type === 'e') { if(x.source === 'Bank') bankBal -= a; else sirBal -= a; }
+            else if(x.type === 'l') sirBal -= a;
+            else if(x.type === 't') { sirBal -= a; bankBal += a; }
         }
     });
 
-    // --- PDF Design Header ---
-    doc.setFillColor(51, 65, 85); // Dark Slate color
-    doc.rect(0, 0, 210, 40, 'F'); // Top Header Bar
-    
-    doc.setFontSize(22);
+    doc.setFillColor(51, 65, 85);
+    doc.rect(0, 0, 210, 40, 'F');
     doc.setTextColor(255, 255, 255);
-    doc.text("SALARY REPORT", 14, 20);
+    doc.setFontSize(20);
+    doc.text("SALARY & BANK REPORT", 14, 20);
     
     doc.setFontSize(10);
-    doc.text("Generated by: SURYA", 14, 30);
-    doc.text(`Date: ${new Date().toLocaleDateString()}`, 160, 30);
+    doc.text(`Bank Bal: INR ${bankBal.toLocaleString()} | Sir Bal: INR ${sirBal.toLocaleString()}`, 14, 30);
 
-    // --- Table with Professional Colors ---
     doc.autoTable({ 
-        head: [['Date', 'Description', 'Amount']], 
+        head: [['Date', 'Description', 'Source', 'Amount']], 
         body: rows, 
         startY: 45,
-        theme: 'grid', // Grid lines for clean look
-        headStyles: { fillColor: [51, 65, 85], textColor: [255, 255, 255], fontStyle: 'bold' },
-        alternateRowStyles: { fillColor: [245, 247, 250] }, // Light grey rows
-        styles: { fontSize: 10, cellPadding: 5 },
-        foot: [['', 'NET BALANCE', 'INR ' + (ts - te - tl).toLocaleString()]], // Total at bottom
-        footStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' }
+        theme: 'grid',
+        headStyles: { fillColor: [51, 65, 85] },
+        foot: [['', 'FINAL NET TOTAL', '', 'INR ' + (bankBal + sirBal).toLocaleString()]],
+        footStyles: { fillColor: [30, 41, 59] }
     });
 
-    // --- Footer ---
-    doc.setFontSize(9);
-    doc.setTextColor(100);
-    doc.text("Transaction History.", 14, doc.lastAutoTable.finalY + 10);
-
-    doc.save(`Surya_Report_${new Date().getTime()}.pdf`);
+    doc.save(`Surya_Full_Report.pdf`);
 }
+
     function updatePass() {
         const newPass = document.getElementById('nP').value;
         if(newPass.length < 4) return alert("Password lamba rakhein!");
