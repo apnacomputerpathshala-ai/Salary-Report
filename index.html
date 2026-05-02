@@ -125,7 +125,7 @@
         <option value="t">Transfer (Balance to Bank)</option>
     </select>
     <select id="fSource">
-        <option value="Balance">पैसे सर के पास हैं (Sir)</option>
+        <option value="Balance">पैसे सर के पास हैं (Balance)</option>
         <option value="Bank">पैसे बैंक में हैं (Bank)</option>
     </select>
     <select id="fM">
@@ -326,7 +326,7 @@
 
             let label = "";
             if (item.t === 't') label = "Transfer (Balance ➔ Bank)";
-            else label = item.source === 'Bank' ? "🏦 Bank Source" : "💼 Salary";
+            else label = item.source === 'Bank' ? "🏦 Bank" : "💼 Salary";
 
             mb.innerHTML += `
             <div class="item-row">
