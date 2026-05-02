@@ -112,7 +112,7 @@
     <div class="stat-card exp"><small>TOTAL EXPENSES</small><div class="v" id="tE">₹0</div></div>
     <div class="stat-card lwp"><small>LWP CUT</small><div class="v" id="tL">₹0</div></div>
     <div class="stat-card bal" style="border-left-color: #22c55e;"><small>IN YOUR BANK</small><div class="v" id="tBank">₹0</div></div>
-    <div class="stat-card bal" style="border-left-color: #000; grid-column: span 2;"><small>BALANCE (WITH SIR)</small><div class="v" id="tSir">₹0</div></div>
+    <div class="stat-card bal" style="border-left-color: #000; grid-column: span 2;"><small>BALANCE</small><div class="v" id="tSir">₹0</div></div>
 </div>
 
 <div class="card">
@@ -122,10 +122,10 @@
         <option value="s">Salary (Earned)</option>
         <option value="e">Expense</option>
         <option value="l">LWP Cut</option>
-        <option value="t">Transfer (Sir to Bank)</option>
+        <option value="t">Transfer (Balance to Bank)</option>
     </select>
     <select id="fSource">
-        <option value="Sir">पैसे सर के पास हैं (Sir)</option>
+        <option value="Balance">पैसे सर के पास हैं (Sir)</option>
         <option value="Bank">पैसे बैंक में हैं (Bank)</option>
     </select>
     <select id="fM">
@@ -325,8 +325,8 @@
             if (item.t === 't') color = "#1d4ed8"; // Blue (Transfer)
 
             let label = "";
-            if (item.t === 't') label = "Transfer (Sir ➔ Bank)";
-            else label = item.source === 'Bank' ? "🏦 Bank Source" : "💼 Sir Source";
+            if (item.t === 't') label = "Transfer (Balance ➔ Bank)";
+            else label = item.source === 'Bank' ? "🏦 Bank Source" : "💼 Salary";
 
             mb.innerHTML += `
             <div class="item-row">
